@@ -1,0 +1,339 @@
+---
+title: Contributing Guidelines
+description: Guidelines for contributing to Praydo development
+---
+
+Thank you for considering contributing to Praydo! This guide will help you get started with contributing to the project.
+
+## Getting Started
+
+Before you begin contributing, please:
+
+1. Read the [architecture overview](/development/architecture) to understand the codebase
+2. Set up your [development environment](/development/building)
+3. Familiarize yourself with the project structure and tech stack
+
+## Ways to Contribute
+
+There are many ways to contribute to Praydo:
+
+- **Report bugs** - Submit detailed bug reports
+- **Suggest features** - Propose new features or improvements
+- **Write code** - Fix bugs or implement new features
+- **Improve documentation** - Help improve or translate documentation
+- **Test** - Test new features and report issues
+
+## Code Contributions
+
+### Development Workflow
+
+<Steps>
+  <Step title="Fork and clone">
+    Fork the repository and clone it to your local machine:
+    
+    ```bash
+    git clone https://github.com/yourusername/praydo.git
+    cd praydo
+    ```
+  </Step>
+
+  <Step title="Create a branch">
+    Create a new branch for your changes:
+    
+    ```bash
+    git checkout -b feature/your-feature-name
+    ```
+    
+    Use descriptive branch names:
+    - `feature/add-prayer-reminder`
+    - `fix/notification-timing`
+    - `docs/update-readme`
+  </Step>
+
+  <Step title="Make your changes">
+    Make your changes following the [coding standards](#coding-standards) below.
+  </Step>
+
+  <Step title="Test your changes">
+    Run tests and type checking:
+    
+    ```bash
+    pnpm test
+    pnpm check
+    ```
+  </Step>
+
+  <Step title="Commit your changes">
+    Commit your changes with a descriptive message:
+    
+    ```bash
+    git add .
+    git commit -m "feat: add prayer reminder feature"
+    ```
+    
+    See [commit message guidelines](#commit-messages) below.
+  </Step>
+
+  <Step title="Push and create a pull request">
+    Push your branch and create a pull request:
+    
+    ```bash
+    git push origin feature/your-feature-name
+    ```
+    
+    Then open a pull request on GitHub with a clear description of your changes.
+  </Step>
+</Steps>
+
+## Coding Standards
+
+### TypeScript/Svelte Guidelines
+
+- **Use TypeScript** for all new code
+- **Follow existing patterns** in the codebase
+- **Use Svelte 5 runes** (`$state`, `$derived`, `$effect`) for reactivity
+- **Prefer composition** over complex inheritance
+- **Keep components small** and focused on a single responsibility
+
+#### Example: Reactive State
+
+```typescript
+// Good - Using Svelte 5 runes
+export class MyManager {
+  currentValue = $state(0);
+  doubledValue = $derived(this.currentValue * 2);
+}
+
+// Avoid - Old Svelte syntax
+let currentValue = 0;
+$: doubledValue = currentValue * 2;
+```
+
+### Rust Guidelines
+
+- **Follow Rust conventions** (use `cargo fmt` and `cargo clippy`)
+- **Document public APIs** with doc comments
+- **Handle errors properly** - avoid `unwrap()` in production code
+- **Use descriptive variable names**
+
+#### Example: Error Handling
+
+```rust
+// Good
+#[tauri::command]
+fn my_command(app: tauri::AppHandle) -> Result<(), String> {
+    some_operation()
+        .map_err(|e| e.to_string())
+}
+
+// Avoid
+#[tauri::command]
+fn my_command(app: tauri::AppHandle) {
+    some_operation().unwrap();
+}
+```
+
+### Code Formatting
+
+The project uses **Prettier** for automatic code formatting. Before committing:
+
+```bash
+pnpm format
+```
+
+Husky and lint-staged are configured to automatically format staged files on commit.
+
+## Commit Messages
+
+Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+
+```
+<type>: <description>
+
+[optional body]
+
+[optional footer]
+```
+
+### Commit Types
+
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `docs:` - Documentation changes
+- `style:` - Code style changes (formatting, etc.)
+- `refactor:` - Code refactoring
+- `test:` - Adding or updating tests
+- `chore:` - Maintenance tasks
+
+### Examples
+
+```bash
+feat: add support for custom prayer calculation methods
+
+fix: resolve notification timing issue on Windows
+
+docs: update installation instructions for Linux
+
+refactor: simplify PrayerManager state management
+```
+
+## Testing
+
+All contributions should include appropriate tests:
+
+### Unit Tests
+
+Write unit tests for new functionality using Vitest:
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { parseTimeString } from '$lib/utils/time';
+
+describe('parseTimeString', () => {
+  it('should parse 12-hour time format', () => {
+    const result = parseTimeString('05:30 AM', new Date());
+    expect(result.getHours()).toBe(5);
+    expect(result.getMinutes()).toBe(30);
+  });
+});
+```
+
+### Manual Testing
+
+For UI changes, manually test:
+
+1. Development mode (`pnpm tauri dev`)
+2. Production build (`pnpm tauri build`)
+3. On multiple platforms if possible (Windows, macOS, Linux)
+
+## Pull Request Guidelines
+
+### Before Submitting
+
+Ensure your pull request:
+
+- [ ] Follows the coding standards
+- [ ] Includes tests for new functionality
+- [ ] Passes all existing tests (`pnpm test`)
+- [ ] Passes type checking (`pnpm check`)
+- [ ] Is properly formatted (`pnpm format`)
+- [ ] Has a clear description of changes
+- [ ] References any related issues
+
+### Pull Request Template
+
+```markdown
+## Description
+Brief description of what this PR does.
+
+## Type of Change
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Documentation update
+
+## Testing
+Describe how you tested these changes.
+
+## Related Issues
+Fixes #123
+
+## Screenshots (if applicable)
+Add screenshots for UI changes.
+```
+
+## Reporting Bugs
+
+When reporting bugs, please include:
+
+### Bug Report Template
+
+```markdown
+**Describe the bug**
+A clear description of what the bug is.
+
+**To Reproduce**
+Steps to reproduce the behavior:
+1. Go to '...'
+2. Click on '...'
+3. See error
+
+**Expected behavior**
+What you expected to happen.
+
+**Screenshots**
+If applicable, add screenshots.
+
+**Environment:**
+- OS: [e.g., Windows 11, macOS 14, Ubuntu 22.04]
+- Praydo version: [e.g., 0.5.0]
+- Installation method: [e.g., installer, built from source]
+
+**Additional context**
+Any other context about the problem.
+```
+
+## Feature Requests
+
+When suggesting features, please:
+
+1. **Check existing issues** to avoid duplicates
+2. **Describe the problem** you're trying to solve
+3. **Propose a solution** with as much detail as possible
+4. **Consider alternatives** and explain why your solution is better
+5. **Be open to discussion** - features may be refined through community feedback
+
+## Documentation Contributions
+
+Documentation improvements are always welcome:
+
+- Fix typos or unclear explanations
+- Add examples or tutorials
+- Translate documentation to other languages
+- Improve code comments
+
+## Code Review Process
+
+1. **Maintainer review** - A project maintainer will review your PR
+2. **Feedback** - You may be asked to make changes
+3. **Approval** - Once approved, your PR will be merged
+4. **Release** - Your changes will be included in the next release
+
+## Project Structure
+
+Understanding the project structure helps with contributions:
+
+```
+praydo/
+├── src/                    # Frontend code
+│   ├── lib/               # Library code
+│   │   ├── logic/        # Business logic
+│   │   ├── store/        # State management
+│   │   └── utils/        # Utility functions
+│   └── routes/           # SvelteKit routes
+├── src-tauri/            # Backend code
+│   ├── src/
+│   │   └── lib.rs       # Main Tauri app
+│   ├── Cargo.toml       # Rust dependencies
+│   └── tauri.conf.json  # Tauri config
+├── static/               # Static assets
+├── tests/                # Test files
+└── package.json          # Node dependencies
+```
+
+## Getting Help
+
+If you need help with contributing:
+
+- **Check the documentation** first
+- **Search existing issues** for similar questions
+- **Open a discussion** on GitHub for general questions
+- **Ask in pull requests** for specific code-related questions
+
+## License
+
+By contributing to Praydo, you agree that your contributions will be licensed under the MIT License.
+
+## Recognition
+
+All contributors are recognized in the project. Thank you for helping make Praydo better!

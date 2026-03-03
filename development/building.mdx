@@ -1,0 +1,266 @@
+---
+title: Building Praydo
+description: Instructions for building and running Praydo in development and production
+---
+
+This guide covers how to build and run Praydo for development and production.
+
+## Prerequisites
+
+Before you begin, ensure you have the required tools installed:
+
+### System Requirements
+
+- **Node.js** (v18 or later recommended)
+- **pnpm** (v10.12.1 or later)
+- **Rust** (latest stable version)
+- **Tauri CLI** (installed via npm)
+
+### Platform-Specific Prerequisites
+
+Tauri requires additional system dependencies depending on your operating system:
+
+<Tabs>
+  <Tab title="Linux">
+    Install the following packages (Ubuntu/Debian):
+    
+    ```bash
+    sudo apt update
+    sudo apt install libwebkit2gtk-4.1-dev \
+      build-essential \
+      curl \
+      wget \
+      file \
+      libssl-dev \
+      libgtk-3-dev \
+      libayatana-appindicator3-dev \
+      librsvg2-dev
+    ```
+  </Tab>
+  
+  <Tab title="macOS">
+    Install Xcode Command Line Tools:
+    
+    ```bash
+    xcode-select --install
+    ```
+  </Tab>
+  
+  <Tab title="Windows">
+    Install the following:
+    
+    - [Microsoft Visual Studio C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+    - [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) (usually pre-installed on Windows 11)
+  </Tab>
+</Tabs>
+
+For complete platform-specific instructions, see the [Tauri prerequisites guide](https://tauri.app/start/prerequisites/).
+
+## Installation
+
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/yourusername/praydo.git
+    cd praydo
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    Install Node.js dependencies using pnpm:
+    
+    ```bash
+    pnpm install
+    ```
+    
+    This will install all frontend dependencies listed in `package.json`, including the Tauri CLI.
+  </Step>
+
+  <Step title="Verify installation">
+    Check that the Tauri CLI is working:
+    
+    ```bash
+    pnpm tauri --version
+    ```
+  </Step>
+</Steps>
+
+## Development
+
+### Running the Development Server
+
+Start the application in development mode with hot reload:
+
+```bash
+pnpm tauri dev
+```
+
+This command:
+
+1. Starts the Vite development server on port **1420**
+2. Compiles the Rust backend
+3. Launches the Tauri application window
+4. Enables hot module replacement (HMR) for frontend changes
+
+<Note>
+  The development server uses a fixed port (1420) as required by Tauri. If this port is already in use, the build will fail.
+</Note>
+
+### Development Workflow
+
+While the development server is running:
+
+- **Frontend changes** (TypeScript, Svelte, CSS) trigger automatic hot reload
+- **Rust changes** require restarting the dev server manually
+- **Configuration changes** in `tauri.conf.json` require a restart
+
+### Type Checking
+
+Run TypeScript and Svelte type checking:
+
+```bash
+pnpm check
+```
+
+For continuous type checking during development:
+
+```bash
+pnpm check:watch
+```
+
+### Running Tests
+
+Praydo uses Vitest for testing:
+
+```bash
+# Run tests once
+pnpm test
+
+# Watch mode
+pnpm test:watch
+
+# Generate coverage report
+pnpm test:coverage
+```
+
+### Code Formatting
+
+Format code using Prettier:
+
+```bash
+pnpm format
+```
+
+The project uses Husky and lint-staged to automatically format files on commit.
+
+## Production Build
+
+### Building the Application
+
+Create a production build of Praydo:
+
+```bash
+pnpm tauri build
+```
+
+This command:
+
+1. Builds the SvelteKit frontend with Vite (production mode)
+2. Compiles the Rust backend with optimizations
+3. Bundles everything into a native application
+4. Creates platform-specific installers
+
+<Note>
+  The build process can take several minutes, especially the first time as Rust dependencies are compiled.
+</Note>
+
+### Build Artifacts
+
+After a successful build, you'll find the output in:
+
+```
+src-tauri/target/release/
+├── bundle/              # Platform-specific installers
+│   ├── deb/            # Debian package (Linux)
+│   ├── appimage/       # AppImage (Linux)
+│   ├── dmg/            # DMG installer (macOS)
+│   ├── msi/            # MSI installer (Windows)
+│   └── nsis/           # NSIS installer (Windows)
+└── praydo              # Standalone executable
+```
+
+The specific bundle types depend on your operating system:
+
+| Platform | Bundle Types |
+|----------|-------------|
+| **Linux** | `.deb`, `.AppImage` |
+| **macOS** | `.app`, `.dmg` |
+| **Windows** | `.exe`, `.msi` |
+
+### Release Builds
+
+For release builds with code signing and updater support, additional configuration is required in `tauri.conf.json`.
+
+## Troubleshooting
+
+### Port Already in Use
+
+If port 1420 is already in use:
+
+```bash
+# Linux/macOS
+lsof -ti:1420 | xargs kill -9
+
+# Windows (PowerShell)
+Stop-Process -Id (Get-NetTCPConnection -LocalPort 1420).OwningProcess -Force
+```
+
+### Rust Compilation Errors
+
+If you encounter Rust compilation errors:
+
+1. Update Rust to the latest version:
+   ```bash
+   rustup update
+   ```
+
+2. Clean the build cache:
+   ```bash
+   pnpm tauri build --clean
+   ```
+
+### Missing Dependencies
+
+If the build fails due to missing system dependencies, refer to the [Tauri prerequisites](https://tauri.app/start/prerequisites/) for your platform.
+
+### WebView2 Issues (Windows)
+
+If you encounter WebView2 errors on Windows:
+
+1. Download and install the [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/)
+2. Restart your development environment
+
+## Build Scripts
+
+All available scripts from `package.json`:
+
+```json
+{
+  "dev": "vite dev",                    // Frontend only dev server
+  "build": "vite build",                // Build frontend only
+  "preview": "vite preview",            // Preview production build
+  "tauri": "tauri",                     // Tauri CLI access
+  "check": "svelte-kit sync && svelte-check",
+  "check:watch": "svelte-kit sync && svelte-check --watch",
+  "test": "vitest run",
+  "test:watch": "vitest",
+  "test:coverage": "vitest run --coverage",
+  "format": "prettier --write ."
+}
+```
+
+## Next Steps
+
+- Learn about the [application architecture](/development/architecture)
+- Review the [contributing guidelines](/development/contributing)
+- Explore the [configuration options](/configuration/calculation-methods)

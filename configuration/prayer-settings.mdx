@@ -1,0 +1,179 @@
+---
+title: Prayer Time Settings
+description: Configure which prayer times to display and customize time format preferences
+---
+
+Customize how prayer times are displayed in Praydo, including which prayers to show and the time format.
+
+## Display Settings
+
+Control which prayer times are visible in the main interface and which times trigger the adhan (call to prayer).
+
+### Show Prayer Times
+
+Select which prayer times to display in the main window. All times are shown by default, but you can hide specific prayers if needed.
+
+<ParamField path="daily.fajr" type="boolean" default="true">
+  Display Fajr (pre-dawn) prayer time.
+</ParamField>
+
+<ParamField path="daily.sunrise" type="boolean" default="true">
+  Display Sunrise time (not a prayer time, but marks the end of Fajr period).
+</ParamField>
+
+<ParamField path="daily.dhuhr" type="boolean" default="true">
+  Display Dhuhr (midday) prayer time.
+</ParamField>
+
+<ParamField path="daily.asr" type="boolean" default="true">
+  Display Asr (afternoon) prayer time.
+</ParamField>
+
+<ParamField path="daily.maghrib" type="boolean" default="true">
+  Display Maghrib (sunset) prayer time.
+</ParamField>
+
+<ParamField path="daily.isha" type="boolean" default="true">
+  Display Isha (night) prayer time.
+</ParamField>
+
+## Time Format
+
+Choose how prayer times are displayed throughout the application.
+
+<ParamField path="format" type="string" default="24h">
+  The time format for displaying prayer times.
+  
+  **Options:**
+  - `12h` - 12-hour format with AM/PM (e.g., "5:30 AM", "1:45 PM")
+  - `24h` - 24-hour format (e.g., "05:30", "13:45")
+  - `12H` - 12-hour format without AM/PM (e.g., "5:30", "1:45")
+  - `x` - Unix timestamp in milliseconds
+  - `X` - Unix timestamp in seconds
+</ParamField>
+
+### Format Examples
+
+<CodeGroup>
+```json 12-Hour Format (12h)
+{
+  "fajr": "5:30 AM",
+  "sunrise": "6:45 AM",
+  "dhuhr": "12:30 PM",
+  "asr": "3:45 PM",
+  "maghrib": "6:15 PM",
+  "isha": "7:30 PM"
+}
+```
+
+```json 24-Hour Format (24h)
+{
+  "fajr": "05:30",
+  "sunrise": "06:45",
+  "dhuhr": "12:30",
+  "asr": "15:45",
+  "maghrib": "18:15",
+  "isha": "19:30"
+}
+```
+</CodeGroup>
+
+## Play Adhan Settings
+
+Configure which prayer times should trigger the adhan (call to prayer) notification. This is separate from the display settings - you can display a time without playing adhan, or vice versa.
+
+<Note>
+  The "Play Adhan At" settings are managed in the **Prayer Times** tab of settings, while notification timing is configured in the [Alert Settings](/configuration/alert-settings).
+</Note>
+
+<ParamField path="alert.fajr" type="boolean" default="false">
+  Play adhan at Fajr prayer time.
+</ParamField>
+
+<ParamField path="alert.dhuhr" type="boolean" default="false">
+  Play adhan at Dhuhr prayer time.
+</ParamField>
+
+<ParamField path="alert.asr" type="boolean" default="false">
+  Play adhan at Asr prayer time.
+</ParamField>
+
+<ParamField path="alert.maghrib" type="boolean" default="false">
+  Play adhan at Maghrib prayer time.
+</ParamField>
+
+<ParamField path="alert.isha" type="boolean" default="false">
+  Play adhan at Isha prayer time.
+</ParamField>
+
+<Info>
+  Note that Sunrise does not have an adhan setting, as it is not a prayer time but rather marks the end of the Fajr prayer period.
+</Info>
+
+## Configuring Prayer Settings
+
+To configure prayer time display settings:
+
+1. Open **Settings** from the main menu
+2. Navigate to the **Prayer Times** tab
+3. Under **Show Prayer Times**, check or uncheck the prayers you want to display
+4. Under **Play Adhan At**, enable adhan for specific prayers
+5. Under **Time Format**, select your preferred format (12h or 24h)
+
+### Use Cases
+
+<AccordionGroup>
+  <Accordion title="Simplified Display">
+    If you only want to see the five daily prayers without Sunrise:
+    
+    - ✅ Fajr
+    - ❌ Sunrise
+    - ✅ Dhuhr
+    - ✅ Asr
+    - ✅ Maghrib
+    - ✅ Isha
+  </Accordion>
+
+  <Accordion title="Selective Notifications">
+    If you want to see all times but only receive adhan for Fajr and Maghrib:
+    
+    Display all prayer times, but enable adhan only for:
+    - ✅ Fajr adhan
+    - ❌ Dhuhr adhan
+    - ❌ Asr adhan
+    - ✅ Maghrib adhan
+    - ❌ Isha adhan
+  </Accordion>
+
+  <Accordion title="Regional Preferences">
+    Some regions prefer 12-hour format while others prefer 24-hour:
+    
+    **North America**: Typically use 12-hour format ("5:30 AM")
+    
+    **Europe/Asia**: Often prefer 24-hour format ("17:30")
+  </Accordion>
+</AccordionGroup>
+
+## Automatic Updates
+
+All prayer time settings are automatically saved when you make changes:
+
+- **Save Strategy**: Debounced (changes are saved after 1 second of inactivity)
+- **Save Interval**: 1000ms (1 second)
+- **Auto-start**: Settings are loaded automatically when the app starts
+
+<Note>
+  Changes to prayer time display settings take effect immediately without requiring an app restart.
+</Note>
+
+## Integration with Other Settings
+
+Prayer time settings work together with:
+
+- **[Calculation Methods](/configuration/calculation-methods)**: Determines the actual prayer times
+- **[Alert Settings](/configuration/alert-settings)**: Controls when notifications appear before prayer times
+- **[General Settings](/configuration/general-settings)**: Affects overall app behavior including autostart
+
+<Tip>
+  For the most accurate prayer times, ensure your location is correctly set in the Settings > Location tab, and choose the appropriate calculation method for your region.
+</Tip>

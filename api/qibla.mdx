@@ -1,0 +1,74 @@
+---
+title: 'Qibla Direction'
+description: 'Calculate the Qibla direction (bearing to Mecca) from any location'
+---
+
+## Overview
+
+The Qibla utilities provide functions to calculate the direction to Mecca (Kaaba) from any geographical location. This is essential for determining the prayer direction for Muslims worldwide.
+
+## calculateQiblaBearing
+
+Calculates the Qibla bearing (direction to Mecca) from a given latitude and longitude using the great-circle distance formula.
+
+```typescript
+function calculateQiblaBearing(
+  latitude: number,
+  longitude: number
+): number
+```
+
+### Parameters
+
+<ParamField path="latitude" type="number" required>
+  The latitude of the location in degrees. Valid range: -90 to 90.
+</ParamField>
+
+<ParamField path="longitude" type="number" required>
+  The longitude of the location in degrees. Valid range: -180 to 180.
+</ParamField>
+
+### Returns
+
+<ResponseField name="bearing" type="number">
+  The Qibla bearing in degrees (0-360), where:
+  - 0° = North
+  - 90° = East
+  - 180° = South
+  - 270° = West
+</ResponseField>
+
+### Example
+
+```typescript
+import { calculateQiblaBearing } from '@/lib/utils/qibla';
+
+// Calculate Qibla direction from New York City
+const latitude = 40.7128;
+const longitude = -74.0060;
+const bearing = calculateQiblaBearing(latitude, longitude);
+
+console.log(`Qibla direction: ${bearing.toFixed(2)}°`);
+// Output: Qibla direction: 58.48°
+
+// Calculate Qibla direction from Jakarta, Indonesia
+const jakartaBearing = calculateQiblaBearing(-6.2088, 106.8456);
+console.log(`Qibla direction: ${jakartaBearing.toFixed(2)}°`);
+// Output: Qibla direction: 295.14°
+```
+
+## Reference Coordinates
+
+The Qibla calculation uses the following coordinates for the Kaaba in Mecca:
+
+- **Latitude**: 21.422487°N
+- **Longitude**: 39.826206°E
+
+## Algorithm
+
+The function uses the spherical law of cosines to calculate the bearing:
+
+1. Converts input coordinates from degrees to radians
+2. Calculates the difference in longitude
+3. Applies the bearing formula: `atan2(sin(Δlon) × cos(lat2), cos(lat1) × sin(lat2) - sin(lat1) × cos(lat2) × cos(Δlon))`
+4. Converts the result back to degrees and normalizes to 0-360° range

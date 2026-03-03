@@ -1,80 +1,212 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quick Start
+description: Get up and running with Praydo in minutes
 ---
 
-## Get started in three steps
+## Welcome to Praydo
 
-Get your documentation site running locally and make your first customization.
-
-### Step 1: Set up your local environment
-
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
-
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
-
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
+This guide will walk you through setting up Praydo for the first time and help you start tracking your daily prayer times.
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  Make sure you have Praydo installed before proceeding. See the [Installation guide](/installation) if you haven't installed it yet.
 </Note>
+
+## First-Time Setup
+
+Follow these steps to get started with Praydo:
+
+<Steps>
+  <Step title="Launch the Application">
+    Open Praydo from your applications menu or desktop shortcut.
+    
+    When you first launch Praydo, you'll see the main window with the title "Pray on Time. Praydo." The application window is optimized at 900x760 pixels for the best viewing experience.
+  </Step>
+  
+  <Step title="Set Your Location">
+    To get accurate prayer times, you need to set your location:
+    
+    1. Click on the location search or settings option
+    2. Search for your city or address
+    3. Select your location from the search results
+    
+    <Info>
+      Praydo uses OpenStreetMap to search for locations, providing accurate geocoding data for prayer time calculations.
+    </Info>
+    
+    Your location is saved locally on your device and will be remembered for future use.
+  </Step>
+  
+  <Step title="View Prayer Times">
+    Once your location is set, Praydo will automatically calculate and display:
+    
+    - **All five daily prayers**: Fajr, Dhuhr, Asr, Maghrib, and Isha
+    - **Prayer times** specific to your location
+    - **Hijri date** alongside the Gregorian date
+    
+    The prayer times are calculated using the PrayTimes.org algorithm, ensuring accuracy based on your geographical coordinates.
+  </Step>
+  
+  <Step title="Monitor the Countdown">
+    The main screen displays a countdown to the next prayer:
+    
+    - See exactly how many hours and minutes until the next prayer
+    - The countdown updates in real-time
+    - The next prayer is highlighted for easy identification
+    
+    This helps you plan your day and ensure you don't miss any prayers.
+  </Step>
+</Steps>
+
+## Understanding the Interface
+
+### Daily Prayer Schedule
+
+The main view shows all five daily prayers with their corresponding times:
+
+- **Fajr** - Dawn prayer
+- **Dhuhr** - Midday prayer  
+- **Asr** - Afternoon prayer
+- **Maghrib** - Sunset prayer
+- **Isha** - Night prayer
+
+Each prayer time is calculated based on your location's latitude, longitude, and timezone.
+
+### Next Prayer Countdown
+
+The countdown timer shows:
+- Time remaining until the next prayer
+- Which prayer is coming up next
+- Visual indicator to help you prepare
+
+### Date Display
+
+Praydo shows both:
+- **Gregorian date** - Standard calendar date
+- **Hijri date** - Islamic calendar date
+
+This dual calendar display helps you stay connected with both date systems.
+
+## Enabling Desktop Notifications
+
+<Steps>
+  <Step title="Grant Notification Permissions">
+    When you first launch Praydo, it may ask for permission to send desktop notifications. Click "Allow" to enable this feature.
+    
+    <Warning>
+      If you skip this step, you won't receive prayer time notifications. You can enable notifications later in your system settings.
+    </Warning>
+  </Step>
+  
+  <Step title="Configure Notification Preferences">
+    Customize when and how you receive notifications:
+    
+    - Choose which prayers trigger notifications
+    - Set notification timing (at prayer time or a few minutes before)
+    - Adjust notification sound and style
+  </Step>
+  
+  <Step title="Test Notifications">
+    After enabling notifications, Praydo will alert you when it's time for each prayer. You'll receive a desktop notification that:
+    
+    - Shows the prayer name
+    - Indicates it's time to pray
+    - Appears even when the app is minimized
+  </Step>
+</Steps>
+
+<Info>
+  Praydo uses the Tauri notification plugin to deliver native desktop notifications on Windows, macOS, and Linux.
+</Info>
+
+## Adjusting Calculation Settings
+
+For more accurate prayer times, you may want to adjust the calculation method:
+
+- **Calculation Method**: Different Islamic organizations use slightly different calculation methods
+- **Asr Calculation**: Choose between Shafi'i (standard) and Hanafi methods
+- **High Latitude Adjustments**: Important for users in extreme northern or southern latitudes
+
+These settings ensure prayer times align with your local Islamic authority's recommendations.
+
+## Changing Your Location
+
+If you travel or move to a new location:
+
+1. Access the location settings
+2. Search for your new location
+3. Select it from the results
+4. Prayer times will automatically update
+
+<Note>
+  Prayer times are recalculated immediately when you change your location, so you always have accurate information.
+</Note>
+
+## Running on Startup (Optional)
+
+To have Praydo start automatically when you log in:
+
+1. Open application settings or preferences
+2. Enable the "Start on system startup" option
+3. Praydo will now launch automatically when you start your computer
+
+<Info>
+  This feature uses the Tauri autostart plugin and works across all supported platforms.
+</Info>
+
+## Common Tasks
+
+<CardGroup cols={2}>
+  <Card title="Update Location" icon="location-dot">
+    Traveling? Update your location to get accurate prayer times wherever you are.
+  </Card>
+  <Card title="Check Tomorrow's Times" icon="calendar">
+    View upcoming prayer times to plan ahead for the next day.
+  </Card>
+  <Card title="Adjust Settings" icon="gear">
+    Customize calculation methods, notification preferences, and more.
+  </Card>
+  <Card title="View Hijri Date" icon="moon">
+    Keep track of Islamic calendar dates alongside prayer times.
+  </Card>
+</CardGroup>
+
+## Tips for Best Experience
+
+<AccordionGroup>
+  <Accordion title="Keep the app running in the background">
+    Minimize Praydo instead of closing it to ensure you receive all prayer notifications throughout the day.
+  </Accordion>
+  
+  <Accordion title="Set your location precisely">
+    The more accurate your location, the more accurate your prayer times. Try to select your exact city or neighborhood.
+  </Accordion>
+  
+  <Accordion title="Enable autostart for convenience">
+    Have Praydo start automatically with your system so you never have to remember to launch it manually.
+  </Accordion>
+  
+  <Accordion title="Check settings after updates">
+    After updating Praydo, verify that your location and preferences are still set correctly.
+  </Accordion>
+</AccordionGroup>
+
+## Getting Help
+
+If you encounter any issues or have questions:
+
+- Check the documentation for detailed information
+- Visit the GitHub repository to report bugs or request features
+- Review the FAQ section for common questions
+
+## Next Steps
+
+Now that you're familiar with Praydo, explore these topics:
+
+- Learn about advanced configuration options
+- Understand different prayer calculation methods
+- Customize notification settings for your needs
+- Contribute to the project on GitHub
+
+<Info>
+  Praydo is open source and welcomes contributions from the community. Visit the repository to get involved!
+</Info>

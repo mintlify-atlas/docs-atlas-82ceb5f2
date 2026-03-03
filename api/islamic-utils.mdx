@@ -1,0 +1,164 @@
+---
+title: 'Islamic Date Utilities'
+description: 'Utilities for formatting and working with Islamic (Hijri) calendar dates'
+---
+
+## Overview
+
+The Islamic utilities provide functions for working with the Hijri calendar, including formatting dates and accessing Islamic month names.
+
+## formatHijriDate
+
+Formats a Hijri date object into a human-readable string.
+
+```typescript
+function formatHijriDate(hijriDate: {
+  day: number;
+  month: number;
+  year: number;
+}): string
+```
+
+### Parameters
+
+<ParamField path="hijriDate" type="object" required>
+  The Hijri date object to format.
+  
+  <ParamField path="hijriDate.day" type="number" required>
+    The day of the month (1-30).
+  </ParamField>
+  
+  <ParamField path="hijriDate.month" type="number" required>
+    The month number (1-12), where 1 is Muharram and 12 is Dhul-Hijjah.
+  </ParamField>
+  
+  <ParamField path="hijriDate.year" type="number" required>
+    The Hijri year (e.g., 1445).
+  </ParamField>
+</ParamField>
+
+### Returns
+
+<ResponseField name="formattedDate" type="string">
+  A formatted Hijri date string in the format: "[day] [month name] [year] AH"
+</ResponseField>
+
+### Example
+
+```typescript
+import { formatHijriDate } from '@/lib/utils/islamic';
+
+// Format a Hijri date
+const hijriDate = {
+  day: 15,
+  month: 9,
+  year: 1445
+};
+
+const formatted = formatHijriDate(hijriDate);
+console.log(formatted);
+// Output: "15 Ramadan 1445 AH"
+
+// Format the first day of Muharram
+const newYear = formatHijriDate({ day: 1, month: 1, year: 1446 });
+console.log(newYear);
+// Output: "1 Muharram 1446 AH"
+```
+
+## hijriMonths
+
+An array containing the names of all Islamic months in order.
+
+```typescript
+const hijriMonths: string[]
+```
+
+### Values
+
+The array contains the following month names:
+
+1. Muharram
+2. Safar
+3. Rabi al-Awwal
+4. Rabi al-Thani
+5. Jumada al-Awwal
+6. Jumada al-Thani
+7. Rajab
+8. Shaban
+9. Ramadan
+10. Shawwal
+11. Dhul-Qadah
+12. Dhul-Hijjah
+
+### Example
+
+```typescript
+import { hijriMonths } from '@/lib/utils/islamic';
+
+// Get the name of a specific month
+const monthNumber = 9;
+const monthName = hijriMonths[monthNumber - 1];
+console.log(monthName);
+// Output: "Ramadan"
+
+// Display all months
+hijriMonths.forEach((month, index) => {
+  console.log(`${index + 1}. ${month}`);
+});
+```
+
+## parseTimeString
+
+Parses a time string into a Date object for a given base date. This utility supports both 12-hour (AM/PM) and 24-hour time formats.
+
+```typescript
+function parseTimeString(timeString: string, baseDate: Date): Date
+```
+
+### Parameters
+
+<ParamField path="timeString" type="string" required>
+  The time string to parse. Supports formats like:
+  - "5:30 AM"
+  - "12:00 PM"
+  - "17:45"
+  - "5:30"
+</ParamField>
+
+<ParamField path="baseDate" type="Date" required>
+  The Date object to use for the year, month, and day components.
+</ParamField>
+
+### Returns
+
+<ResponseField name="date" type="Date">
+  A new Date object with the parsed time, using the year, month, and day from baseDate.
+</ResponseField>
+
+### Example
+
+```typescript
+import { parseTimeString } from '@/lib/utils/time';
+
+const today = new Date('2024-03-15');
+
+// Parse 12-hour format
+const fajrTime = parseTimeString('5:30 AM', today);
+console.log(fajrTime);
+// Output: 2024-03-15T05:30:00.000Z
+
+// Parse 24-hour format
+const ishaTime = parseTimeString('19:45', today);
+console.log(ishaTime);
+// Output: 2024-03-15T19:45:00.000Z
+
+// Handle noon edge case
+const noonTime = parseTimeString('12:00 PM', today);
+console.log(noonTime.getHours());
+// Output: 12
+
+// Handle midnight edge case
+const midnightTime = parseTimeString('12:00 AM', today);
+console.log(midnightTime.getHours());
+// Output: 0
+```

@@ -1,0 +1,242 @@
+---
+title: Calculation Methods
+description: Configure prayer time calculation methods and parameters for accurate prayer times
+---
+
+Praydo supports multiple calculation methods from various Islamic organizations worldwide. Each method uses different angles for Fajr and Isha times, suited to different geographic regions and scholarly traditions.
+
+## Available Calculation Methods
+
+The calculation method determines the angles used to calculate Fajr and Isha prayer times. You can select from preset methods or create a custom configuration.
+
+<AccordionGroup>
+  <Accordion title="Muslim World League (MWL)">
+    Used globally, particularly in Europe, Far East, and parts of America.
+    
+    **Parameters:**
+    - Fajr Angle: 18°
+    - Isha Angle: 17°
+    - Isha Mode: degrees
+  </Accordion>
+
+  <Accordion title="Islamic Society of North America (ISNA)">
+    Commonly used in North America.
+    
+    **Parameters:**
+    - Fajr Angle: 15°
+    - Isha Angle: 15°
+    - Isha Mode: degrees
+  </Accordion>
+
+  <Accordion title="Egyptian General Authority of Survey (Egypt)">
+    Used in Egypt and some Middle Eastern countries.
+    
+    **Parameters:**
+    - Fajr Angle: 19.5°
+    - Isha Angle: 17.5°
+    - Isha Mode: degrees
+  </Accordion>
+
+  <Accordion title="Umm Al-Qura University, Makkah">
+    Official calculation method for Saudi Arabia.
+    
+    **Parameters:**
+    - Fajr Angle: 18.5°
+    - Isha: 90 minutes after Maghrib
+    - Isha Mode: minutes
+  </Accordion>
+
+  <Accordion title="University of Islamic Sciences, Karachi">
+    Used in Pakistan, Bangladesh, India, Afghanistan, and parts of Europe.
+    
+    **Parameters:**
+    - Fajr Angle: 18°
+    - Isha Angle: 18°
+    - Isha Mode: degrees
+  </Accordion>
+
+  <Accordion title="Institute of Geophysics, University of Tehran">
+    Official calculation method for Iran.
+    
+    **Parameters:**
+    - Fajr Angle: 17.7°
+    - Maghrib: 4.5° below horizon
+    - Maghrib Mode: degrees
+    - Midnight Method: Jafari
+  </Accordion>
+
+  <Accordion title="Leva Research Institute, Qom (Jafari)">
+    Used in Shia communities worldwide.
+    
+    **Parameters:**
+    - Fajr Angle: 16°
+    - Maghrib: 4° below horizon
+    - Maghrib Mode: degrees
+    - Midnight Method: Jafari
+  </Accordion>
+
+  <Accordion title="Muslims of France">
+    Used in France and parts of Western Europe.
+    
+    **Parameters:**
+    - Fajr Angle: 12°
+    - Isha Angle: 12°
+    - Isha Mode: degrees
+  </Accordion>
+
+  <Accordion title="Spiritual Administration of Muslims of Russia">
+    Used in Russia and neighboring regions.
+    
+    **Parameters:**
+    - Fajr Angle: 16°
+    - Isha Angle: 15°
+    - Isha Mode: degrees
+  </Accordion>
+
+  <Accordion title="Islamic Religious Council of Singapore">
+    Used in Singapore and parts of Southeast Asia.
+    
+    **Parameters:**
+    - Fajr Angle: 20°
+    - Isha Angle: 18°
+    - Isha Mode: degrees
+  </Accordion>
+
+  <Accordion title="Lembaga Falakiyah NU, Indonesia (NU)">
+    Used by Nahdlatul Ulama followers in Indonesia.
+    
+    **Parameters:**
+    - Fajr Angle: 20°
+    - Isha Angle: 18°
+    - Isha Mode: degrees
+    
+    **Default Method:** This is the default calculation method in Praydo.
+  </Accordion>
+
+  <Accordion title="Muhammadiyah, Indonesia (MU)">
+    Used by Muhammadiyah followers in Indonesia.
+    
+    **Parameters:**
+    - Fajr Angle: 18°
+    - Isha Angle: 18°
+    - Isha Mode: degrees
+  </Accordion>
+</AccordionGroup>
+
+## Custom Calculation Method
+
+If none of the preset methods suit your needs, you can create a custom calculation method by adjusting individual parameters.
+
+### Custom Parameters
+
+<ParamField path="fajrAngle" type="number" default="20">
+  The sun angle below horizon for Fajr prayer time in degrees.
+  
+  Typical values range from 12° to 20° depending on location and scholarly opinion.
+</ParamField>
+
+<ParamField path="maghribMode" type="string" default="minutes">
+  Determines how Maghrib time is calculated.
+  
+  **Options:**
+  - `degrees` - Calculate based on sun angle below horizon
+  - `minutes` - Calculate as minutes after sunset
+</ParamField>
+
+<ParamField path="maghrib" type="number" default="1">
+  Maghrib time calculation value.
+  
+  - If `maghribMode` is `degrees`: Sun angle below horizon (e.g., 4)
+  - If `maghribMode` is `minutes`: Minutes after sunset (e.g., 1)
+</ParamField>
+
+<ParamField path="ishaMode" type="string" default="degrees">
+  Determines how Isha time is calculated.
+  
+  **Options:**
+  - `degrees` - Calculate based on sun angle below horizon
+  - `minutes` - Calculate as minutes after Maghrib
+</ParamField>
+
+<ParamField path="isha" type="number" default="18">
+  Isha time calculation value.
+  
+  - If `ishaMode` is `degrees`: Sun angle below horizon (e.g., 18)
+  - If `ishaMode` is `minutes`: Minutes after Maghrib (e.g., 90)
+</ParamField>
+
+## Advanced Settings
+
+### Dhuhr Adjustment
+
+<ParamField path="dhuhrMinutes" type="number" default="1">
+  Minutes to add after mid-day for Dhuhr prayer time.
+  
+  Most methods add 1 minute to ensure the sun has passed its zenith.
+</ParamField>
+
+### Asr Method
+
+<ParamField path="asrMethod" type="string" default="Standard">
+  Juristic method for calculating Asr prayer time.
+  
+  **Options:**
+  - `Standard` - Shafi'i, Maliki, Ja'fari, and Hanbali (shadow factor = 1)
+  - `Hanafi` - Hanafi school of thought (shadow factor = 2)
+</ParamField>
+
+### Midnight Method
+
+<ParamField path="midnight" type="string" default="Standard">
+  Method for calculating midnight time.
+  
+  **Options:**
+  - `Standard` - Mean time from Sunset to Sunrise
+  - `Jafari` - Mean time from Maghrib to Fajr
+</ParamField>
+
+### High Latitudes Adjustment
+
+<ParamField path="highLatitudes" type="string" default="NightMiddle">
+  Adjustment method for locations with high latitudes (> 48°) where normal calculations may not work.
+  
+  **Options:**
+  - `NightMiddle` - Middle of the night method
+  - `OneSeventh` - One-seventh of the night method
+  - `AngleBased` - Angle-based method
+  - `None` - No adjustment
+</ParamField>
+
+## Example Configuration
+
+To configure a custom calculation method in the settings:
+
+1. Open **Settings** from the main menu
+2. Navigate to the **Calculation** tab
+3. Select **Custom** from the Calculation Method dropdown
+4. Adjust the parameters according to your preferences:
+   - Set Fajr angle (e.g., 18 degrees)
+   - Configure Maghrib (e.g., 1 minute after sunset)
+   - Configure Isha (e.g., 17 degrees below horizon)
+   - Select Asr method (Standard or Hanafi)
+   - Choose midnight calculation method
+5. Adjust Dhuhr minutes if needed
+6. Select high latitudes adjustment if applicable
+
+<Note>
+  Changes to calculation settings are automatically saved and applied immediately to all prayer time displays.
+</Note>
+
+## Understanding Calculation Angles
+
+The calculation angles represent the sun's position below the horizon:
+
+- **Fajr**: When the sky begins to lighten before sunrise
+- **Isha**: When the sky becomes completely dark after sunset
+- **Maghrib**: Typically calculated as minutes after sunset or angle below horizon
+
+Different scholarly opinions and geographic locations lead to different angle preferences. Choose the method recommended for your region or consult with local Islamic authorities.
+
+<Warning>
+  Changing calculation methods will affect all prayer times. Ensure you select the method appropriate for your location and scholarly tradition.
+</Warning>

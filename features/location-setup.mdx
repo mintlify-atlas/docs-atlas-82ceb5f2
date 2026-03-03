@@ -1,0 +1,134 @@
+---
+title: Location Setup
+description: Configure your location using OpenStreetMap for accurate prayer time calculations
+---
+
+Accurate prayer times require precise location information. Praydo uses OpenStreetMap's geocoding service to help you set your location quickly and accurately.
+
+## Setting Your Location
+
+Location setup is the first step when using Praydo. The app requires your location to calculate accurate prayer times based on your geographical coordinates.
+
+<Steps>
+  <Step title="Open Settings">
+    Click the Settings icon in the bottom-right corner of the dashboard, or navigate directly from the initial setup screen
+  </Step>
+  
+  <Step title="Navigate to Location Tab">
+    Select the "Location" tab (marked with a map pin icon)
+  </Step>
+  
+  <Step title="Search for Your Location">
+    Enter your city, address, or landmark in the search field:
+    - Type at least 3 characters for best results
+    - The search uses OpenStreetMap's geocoding API
+    - Examples: "New York", "London, UK", "123 Main Street, Toronto"
+  </Step>
+  
+  <Step title="Submit Your Search">
+    Click the "Submit" button to search for locations
+  </Step>
+  
+  <Step title="Automatic Selection">
+    The app automatically selects the first (most relevant) result from the search
+  </Step>
+</Steps>
+
+## Location Search Features
+
+### Intelligent Debouncing
+
+To provide a smooth experience and respect OpenStreetMap's API limits, Praydo implements smart request throttling:
+
+- **500ms debounce delay**: Waits for you to finish typing before searching
+- **1 request per second limit**: Ensures we don't overload the API
+- **Automatic queuing**: If you search too quickly, requests are queued and sent when allowed
+
+<Note>
+If you don't see results immediately, wait a moment - the app may be queuing your request to comply with rate limits.
+</Note>
+
+### What Information is Stored
+
+When you select a location, Praydo stores:
+
+- **Place ID**: A unique identifier from OpenStreetMap
+- **Display Name**: The full formatted address (e.g., "New York, NY, United States")
+- **Latitude**: Your location's latitude coordinate
+- **Longitude**: Your location's longitude coordinate
+
+This information is stored locally on your device and used to calculate prayer times.
+
+## Viewing Your Selected Location
+
+After selecting a location, you'll see:
+
+1. **Confirmation Card**: Shows your selected location with full address and coordinates
+2. **Main Dashboard**: Your location appears in the bottom widget
+3. **Qibla Compass**: Automatically updates based on your new location
+
+### Location Display Format
+
+The app formats your location name for clean display:
+
+- Long addresses are truncated with ellipsis
+- The location appears on the main dashboard in the location widget
+- Coordinates are shown in decimal degrees format
+
+## OpenStreetMap Attribution
+
+<Info>
+Praydo uses location data from OpenStreetMap, a collaborative mapping project. Location searches are powered by OpenStreetMap's Nominatim geocoding service.
+</Info>
+
+OpenStreetMap data is provided by thousands of contributors worldwide and is available under the [Open Database License](https://www.openstreetmap.org/copyright).
+
+You'll see the OpenStreetMap attribution in the Settings > Location tab:
+
+> Location data provided by OpenStreetMap (© OpenStreetMap contributors)
+
+## Troubleshooting Location Issues
+
+### No Results Found
+
+<AccordionGroup>
+  <Accordion title="Search query too short">
+    Make sure you've entered at least 3 characters. Shorter queries typically don't return results.
+  </Accordion>
+  
+  <Accordion title="Location doesn't exist in OpenStreetMap">
+    Try searching for a nearby city or landmark instead of a specific address.
+  </Accordion>
+  
+  <Accordion title="Network issues">
+    Check your internet connection. The app requires network access to search locations.
+  </Accordion>
+</AccordionGroup>
+
+### Inaccurate Prayer Times
+
+<AccordionGroup>
+  <Accordion title="Wrong location selected">
+    Double-check the selected location in Settings. The full address and coordinates are displayed.
+  </Accordion>
+  
+  <Accordion title="Need more precise coordinates">
+    Try searching for a more specific address rather than just a city name.
+  </Accordion>
+  
+  <Accordion title="Calculation method">
+    Different calculation methods may produce slightly different times. See [Calculation Methods](/configuration/calculation-methods).
+  </Accordion>
+</AccordionGroup>
+
+## Privacy and Data
+
+Your location data:
+- Is stored **only on your local device**
+- Is **not sent** to Praydo's servers (Praydo doesn't have servers)
+- Is only shared with OpenStreetMap when you perform a search
+- Can be changed at any time in Settings
+
+<Warning>
+Changing your location will immediately recalculate all prayer times and update the Qibla direction.
+</Warning>

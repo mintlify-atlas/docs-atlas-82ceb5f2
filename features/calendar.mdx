@@ -1,0 +1,229 @@
+---
+title: Prayer Calendar
+description: View prayer times for an entire month in a comprehensive calendar table
+---
+
+The Prayer Calendar provides a month-by-month view of all prayer times, allowing you to plan ahead and see prayer schedules for any month of the year.
+
+## Accessing the Calendar
+
+Click the **Calendar** icon in the bottom-right corner of the main dashboard to open the Prayer Calendar view.
+
+## Calendar Features
+
+### Monthly View
+
+The calendar displays prayer times for an entire month in an easy-to-read table format:
+
+- **Date Column**: Shows each day of the month (1-31)
+- **Prayer Columns**: One column for each enabled prayer
+- **Current Day Highlight**: Today's date is highlighted with a primary color background
+- **Scrollable Table**: Scroll through the entire month's schedule
+
+### Navigation Controls
+
+Navigate between months using the controls at the top:
+
+- **Previous Month** (◀): Go back one month
+- **Next Month** (▶): Go forward one month  
+- **Month/Year Display**: Shows current month and year (e.g., "January 2024")
+- **Back Button**: Return to the main dashboard
+
+<Steps>
+  <Step title="View Current Month">
+    Open the calendar to see the current month's prayer times
+  </Step>
+  
+  <Step title="Navigate to Different Month">
+    Use the arrow buttons to move backward or forward through months
+  </Step>
+  
+  <Step title="Check Specific Date">
+    Scroll through the table to find prayer times for any date in the month
+  </Step>
+  
+  <Step title="Return to Dashboard">
+    Click the back arrow to return to the main dashboard
+  </Step>
+</Steps>
+
+## Calendar Display
+
+### Today Indicator
+
+The current date is clearly marked:
+
+- **Highlighted Row**: The entire row has a subtle primary color background
+- **Circle Badge**: The date number appears in a circular badge
+- **Bold Text**: Prayer times for today are shown in bold
+- **Distinct Color**: Uses primary color (green) to stand out from other dates
+
+### Table Layout
+
+The calendar uses a responsive table with:
+
+- **Sticky Header**: Column headers stay visible while scrolling
+- **Centered Content**: All times and dates are center-aligned
+- **Monospace Font**: Prayer times use monospace font for clean alignment
+- **Hover Effects**: Rows highlight on hover for easier reading
+- **Alternating Rows**: Subtle visual separation between rows
+
+## Customized Column Display
+
+The calendar respects your prayer time settings:
+
+<Info>
+Only prayers you've enabled in **Settings > Prayer Times > Show Prayer Times** appear as columns in the calendar.
+</Info>
+
+### Example Scenarios
+
+<Tabs>
+  <Tab title="All Prayers Enabled">
+    Calendar shows all columns:
+    
+    | Date | Fajr | Sunrise | Dhuhr | Asr | Maghrib | Isha |
+    |------|------|---------|-------|-----|---------|------|
+    | 1    | 5:30 AM | 6:45 AM | 1:15 PM | 4:30 PM | 7:45 PM | 9:00 PM |
+  </Tab>
+  
+  <Tab title="Only 5 Prayers">
+    If Sunrise is disabled, it's hidden:
+    
+    | Date | Fajr | Dhuhr | Asr | Maghrib | Isha |
+    |------|------|-------|-----|---------|------|
+    | 1    | 5:30 AM | 1:15 PM | 4:30 PM | 7:45 PM | 9:00 PM |
+  </Tab>
+  
+  <Tab title="Custom Selection">
+    Shows only what you've enabled:
+    
+    | Date | Fajr | Dhuhr | Maghrib |
+    |------|------|-------|----------|
+    | 1    | 5:30 AM | 1:15 PM | 7:45 PM |
+  </Tab>
+</Tabs>
+
+## How Prayer Times are Calculated
+
+The calendar generates prayer times for the entire month at once:
+
+1. **Month Selection**: You select which month and year to view
+2. **Daily Calculation**: The app calculates prayer times for each day (1-31)
+3. **Bulk Processing**: Uses `getMonthSchedule()` to efficiently compute all times
+4. **Display Formatting**: Times are formatted according to your time format setting (12h/24h)
+
+### Calculation Process
+
+```typescript
+getMonthSchedule(year: number, month: number) {
+  const schedule = [];
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(year, month, day);
+    const times = prayTimeInstance.getTimes(date);
+    schedule.push({ day, prayers: times });
+  }
+  
+  return schedule;
+}
+```
+
+This means:
+- Every day gets its own calculation
+- Times adjust naturally for seasonal changes
+- Leap years are handled automatically
+- Your location and calculation settings are applied to all days
+
+## Practical Uses
+
+<CardGroup cols={2}>
+  <Card title="Travel Planning" icon="plane">
+    Check prayer times for upcoming trips by navigating to future months
+  </Card>
+  
+  <Card title="Monthly Schedule" icon="calendar-days">
+    Plan your monthly routine around prayer times
+  </Card>
+  
+  <Card title="Compare Times" icon="chart-line">
+    See how prayer times change throughout the month (especially near solstices/equinoxes)
+  </Card>
+  
+  <Card title="Print Reference" icon="print">
+    View the entire month at once for printing or screenshots
+  </Card>
+</CardGroup>
+
+## Navigation Tips
+
+### Quick Navigation
+
+<Steps>
+  <Step title="Jump to Future Month">
+    Click the next arrow multiple times to quickly navigate to future months
+  </Step>
+  
+  <Step title="Return to Current Month">
+    Navigate back or close and reopen the calendar to return to the current month
+  </Step>
+  
+  <Step title="Year Transitions">
+    Navigate past December to automatically move to January of the next year (and vice versa)
+  </Step>
+</Steps>
+
+### Keyboard Accessibility
+
+The calendar is fully keyboard accessible:
+
+- **Tab**: Navigate between controls
+- **Enter/Space**: Activate buttons
+- **Arrow Keys**: Navigate through table cells (browser default)
+
+## Seasonal Prayer Time Changes
+
+Use the calendar to observe how prayer times shift throughout the year:
+
+### Summer Months
+- Fajr gets earlier
+- Isha gets later
+- Day length increases
+- Longer time between Maghrib and Isha
+
+### Winter Months  
+- Fajr gets later
+- Isha gets earlier
+- Day length decreases
+- Shorter time between prayers
+
+<Note>
+Dramatic changes are most visible near the summer solstice (longest day) and winter solstice (shortest day).
+</Note>
+
+## Calendar and Settings Integration
+
+The calendar automatically updates when you change:
+
+- **Location**: All times recalculate for the new location
+- **Calculation Method**: Applies new method to all month's calculations
+- **Enabled Prayers**: Columns appear/disappear based on settings
+- **Time Format**: Switches between 12h and 24h format
+- **Adjustments**: Any custom time adjustments are reflected
+
+<Warning>
+Changing calculation settings or location while viewing the calendar will immediately regenerate all times for the displayed month.
+</Warning>
+
+## Exporting Calendar Data
+
+While Praydo doesn't have built-in export features yet, you can:
+
+1. **Screenshot**: Take a screenshot of the calendar view
+2. **Manual Copy**: Copy times manually for specific dates
+3. **Browser Print**: Use your browser's print function (Ctrl+P / Cmd+P)
+
+<Info>
+Future versions may include CSV export or print-optimized layouts. Check the changelog for updates.
+</Info>

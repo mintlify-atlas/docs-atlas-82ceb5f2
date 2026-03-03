@@ -1,0 +1,149 @@
+---
+title: 'Location & Geocoding'
+description: 'Utilities for geocoding addresses and formatting location strings'
+---
+
+## Overview
+
+The location utilities provide functions for converting place names to coordinates (geocoding) and formatting location strings for display.
+
+## geocode
+
+Converts a place name or address into geographic coordinates using the OpenStreetMap Nominatim API.
+
+```typescript
+function geocode(place: string): Promise<Response>
+```
+
+### Parameters
+
+<ParamField path="place" type="string" required>
+  The place name or address to geocode. Can be a city name, full address, or any location description (e.g., "New York", "1600 Pennsylvania Avenue", "Tokyo, Japan").
+</ParamField>
+
+### Returns
+
+<ResponseField name="response" type="Promise<Response>">
+  A fetch Response object. On success, the JSON data contains an array of location results.
+  
+  <ResponseField name="lat" type="string">
+    The latitude of the location.
+  </ResponseField>
+  
+  <ResponseField name="lon" type="string">
+    The longitude of the location.
+  </ResponseField>
+  
+  <ResponseField name="display_name" type="string">
+    The full formatted address/location name.
+  </ResponseField>
+  
+  <ResponseField name="boundingbox" type="string[]">
+    The bounding box coordinates [south, north, west, east].
+  </ResponseField>
+</ResponseField>
+
+### API Endpoint
+
+```
+GET https://nominatim.openstreetmap.org/search
+```
+
+**Query Parameters:**
+- `q`: The place name to search for
+- `format`: "json" (response format)
+- `limit`: "1" (number of results)
+
+**Headers:**
+- `Accept`: "application/json"
+- `User-Agent`: "Praydo/0.4 (https://github.com/agnanp/praydo; praydo@apr.my.id)"
+
+### Example
+
+```typescript
+import { geocode } from '@/lib/api/location/GeocodeApi';
+
+// Geocode a city name
+const response = await geocode('Jakarta, Indonesia');
+const data = await response.json();
+
+if (data.length > 0) {
+  const location = data[0];
+  console.log(`Latitude: ${location.lat}`);
+  console.log(`Longitude: ${location.lon}`);
+  console.log(`Full name: ${location.display_name}`);
+}
+
+// Example output:
+// Latitude: -6.2087634
+// Longitude: 106.8451498
+// Full name: Jakarta, Special Capital Region of Jakarta, Java, Indonesia
+```
+
+### Error Handling
+
+```typescript
+const response = await geocode('Invalid Location Name');
+
+if (!response.ok) {
+  console.error(`Error: ${response.statusText}`);
+  const emptyResults = await response.json();
+  // Returns empty array on error
+}
+```
+
+## formattedLocation
+
+Formats a location string by extracting the first two parts, capitalizing properly, and cleaning up the format.
+
+```typescript
+function formattedLocation(str: string): string
+```
+
+### Parameters
+
+<ParamField path="str" type="string" required>
+  The location string to format, typically a comma-separated address.
+</ParamField>
+
+### Returns
+
+<ResponseField name="formatted" type="string">
+  A formatted location string containing only the first two parts, with proper capitalization.
+</ResponseField>
+
+### Example
+
+```typescript
+import { formattedLocation } from '@/lib/utils/stringUtils';
+
+// Format a full address
+const fullAddress = 'new york, new york, united states';
+const formatted = formattedLocation(fullAddress);
+console.log(formatted);
+// Output: "New York, New York"
+
+// Format a city and country
+const location = 'jakarta, indonesia, southeast asia';
+const result = formattedLocation(location);
+console.log(result);
+// Output: "Jakarta, Indonesia"
+
+// Handle empty string
+const empty = formattedLocation('');
+console.log(empty);
+// Output: ""
+
+// Single part location
+const singlePart = formattedLocation('london');
+console.log(singlePart);
+// Output: "London"
+```
+
+### Behavior
+
+- Extracts only the first two comma-separated parts
+- Capitalizes the first letter of each word
+- Converts remaining letters to lowercase
+- Trims whitespace from each part
+- Returns empty string if input is empty or null

@@ -1,0 +1,177 @@
+---
+title: Installation
+description: Download and install Praydo on your system
+---
+
+## Overview
+
+Praydo is available for Windows, macOS, and Linux. You can either download pre-built binaries or build the application from source.
+
+## Download Pre-built Binaries
+
+<Note>
+  Pre-built binaries for your platform will be available on the releases page once published.
+</Note>
+
+Download the appropriate installer for your platform:
+
+- **Windows**: `.exe` or `.msi` installer (NSIS)
+- **Linux**: `.deb` package (Debian/Ubuntu) or `.rpm` package (Fedora/RHEL)
+- **macOS**: `.dmg` or `.app` bundle
+
+After downloading, run the installer and follow the on-screen instructions.
+
+## Building from Source
+
+If you prefer to build Praydo from source, follow these instructions.
+
+### Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+<Steps>
+  <Step title="Install Tauri Prerequisites">
+    Follow the [Tauri development prerequisites guide](https://tauri.app/start/prerequisites/) for your operating system. This includes:
+    
+    - **Rust** (via rustup)
+    - **Node.js** (v18 or later)
+    - **System dependencies** (varies by OS)
+  </Step>
+  
+  <Step title="Install pnpm">
+    Praydo uses pnpm as its package manager. Install it globally:
+    
+    ```bash
+    npm install -g pnpm
+    ```
+    
+    Or use corepack (recommended):
+    
+    ```bash
+    corepack enable
+    ```
+  </Step>
+</Steps>
+
+### Development Setup
+
+To set up Praydo for development:
+
+<Steps>
+  <Step title="Clone the Repository">
+    Clone the Praydo repository to your local machine:
+    
+    ```bash
+    git clone https://github.com/yourusername/praydo.git
+    cd praydo
+    ```
+  </Step>
+  
+  <Step title="Install Dependencies">
+    Install all required dependencies using pnpm:
+    
+    ```bash
+    pnpm install
+    ```
+    
+    This will install both frontend (SvelteKit) and backend (Rust/Tauri) dependencies.
+  </Step>
+  
+  <Step title="Run in Development Mode">
+    Start the development server:
+    
+    ```bash
+    pnpm tauri dev
+    ```
+    
+    This will launch the application in development mode with hot-reload enabled. The app will automatically reload when you make changes to the code.
+  </Step>
+</Steps>
+
+<Info>
+  The development server runs the frontend on `http://localhost:1420` and opens the Tauri window automatically.
+</Info>
+
+### Building for Production
+
+To create a production build:
+
+<Steps>
+  <Step title="Run Build Command">
+    Execute the build command:
+    
+    ```bash
+    pnpm tauri build
+    ```
+    
+    This will:
+    1. Build the SvelteKit frontend
+    2. Compile the Rust backend
+    3. Package everything into platform-specific installers
+  </Step>
+  
+  <Step title="Locate Build Artifacts">
+    After the build completes, you'll find the installers in:
+    
+    ```
+    src-tauri/target/release/bundle/
+    ```
+    
+    The exact format depends on your platform:
+    - **Windows**: `nsis/` directory
+    - **Linux**: `deb/` and `rpm/` directories
+    - **macOS**: `dmg/` or `macos/` directory
+  </Step>
+</Steps>
+
+<Warning>
+  The first build may take several minutes as Rust compiles all dependencies. Subsequent builds will be faster thanks to caching.
+</Warning>
+
+## System Requirements
+
+### Minimum Requirements
+
+- **OS**: Windows 10+, macOS 10.15+, or modern Linux distribution
+- **RAM**: 512 MB
+- **Disk Space**: 100 MB
+- **Internet**: Required for location search and initial setup
+
+### Supported Platforms
+
+Praydo officially supports:
+
+- Windows (x64)
+- macOS (Intel and Apple Silicon)
+- Linux (x64)
+  - Debian/Ubuntu (.deb)
+  - Fedora/RHEL (.rpm)
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Build fails with Rust errors">
+    Ensure you have the latest stable version of Rust installed:
+    
+    ```bash
+    rustup update stable
+    ```
+  </Accordion>
+  
+  <Accordion title="pnpm install fails">
+    Try clearing the pnpm cache and reinstalling:
+    
+    ```bash
+    pnpm store prune
+    pnpm install
+    ```
+  </Accordion>
+  
+  <Accordion title="Application won't start">
+    Check that all system dependencies are installed according to the [Tauri prerequisites guide](https://tauri.app/start/prerequisites/).
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+Now that you have Praydo installed, check out the [Quick Start guide](/quickstart) to learn how to set up and use the application.

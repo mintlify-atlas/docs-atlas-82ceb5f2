@@ -1,0 +1,214 @@
+---
+title: Alert & Notification Settings
+description: Configure notification timing and adhan alerts for prayer times
+---
+
+Configure when and how Praydo notifies you about upcoming prayer times. This includes notification timing and adhan (call to prayer) settings.
+
+## Notification Timing
+
+Set how many minutes before each prayer time you want to receive a notification reminder.
+
+<ParamField path="minutes" type="number" default="5">
+  Minutes before prayer time to show notification.
+  
+  **Available Options:**
+  - 5 minutes
+  - 10 minutes
+  - 15 minutes
+  - 20 minutes
+  - 25 minutes
+  - 30 minutes
+  
+  This setting applies to all enabled prayer notifications.
+</ParamField>
+
+## How Notifications Work
+
+Praydo provides two types of alerts:
+
+1. **Pre-prayer Notification**: A reminder shown X minutes before the prayer time (configurable)
+2. **Adhan at Prayer Time**: The call to prayer played exactly at the prayer time (if enabled)
+
+### Example Timeline
+
+If Maghrib is at 6:15 PM and notifications are set to 10 minutes:
+
+- **6:05 PM**: Notification appears - "Maghrib prayer in 10 minutes"
+- **6:15 PM**: Adhan plays (if enabled for Maghrib in [Prayer Settings](/configuration/prayer-settings))
+
+## Configuring Alert Settings
+
+To configure notification timing:
+
+1. Open **Settings** from the main menu
+2. Navigate to the **Notifications** tab
+3. Select your preferred notification time from the dropdown:
+   - 5 Minutes
+   - 10 Minutes
+   - 15 Minutes
+   - 20 Minutes
+   - 25 Minutes
+   - 30 Minutes
+4. Changes are saved automatically
+
+<Note>
+  The notification timing setting applies globally to all prayers that have adhan enabled. Individual per-prayer timing is not currently supported.
+</Note>
+
+## Enabling/Disabling Adhan
+
+To control which prayers trigger the adhan:
+
+1. Open **Settings** from the main menu
+2. Navigate to the **Prayer Times** tab
+3. Under **Play Adhan At**, check the prayers where you want adhan to play:
+   - Fajr
+   - Dhuhr
+   - Asr
+   - Maghrib
+   - Isha
+
+<Info>
+  You must enable adhan for at least one prayer in the Prayer Times settings for notifications to appear.
+</Info>
+
+## Common Configuration Scenarios
+
+<AccordionGroup>
+  <Accordion title="All Prayers with 5-Minute Reminder">
+    Perfect for those who want to be reminded shortly before each prayer.
+    
+    **Settings:**
+    - Notification time: 5 minutes
+    - Enable adhan for: All prayers (Fajr, Dhuhr, Asr, Maghrib, Isha)
+    
+    **Result:** You'll receive a notification 5 minutes before each prayer, then hear the adhan at the exact prayer time.
+  </Accordion>
+
+  <Accordion title="Fajr and Maghrib Only with 15-Minute Reminder">
+    Ideal for those who want reminders only for the most time-sensitive prayers.
+    
+    **Settings:**
+    - Notification time: 15 minutes
+    - Enable adhan for: Fajr and Maghrib only
+    
+    **Result:** You'll receive notifications 15 minutes before Fajr and Maghrib, with adhan at the prayer time.
+  </Accordion>
+
+  <Accordion title="Long Notice for Work Days">
+    Helpful when you need extra time to prepare for prayer during busy schedules.
+    
+    **Settings:**
+    - Notification time: 30 minutes
+    - Enable adhan for: All prayers
+    
+    **Result:** You'll get a half-hour heads-up before each prayer, giving you time to wrap up work or other activities.
+  </Accordion>
+
+  <Accordion title="Notifications Only, No Adhan">
+    If you only want reminder notifications without the adhan sound.
+    
+    **Settings:**
+    - Notification time: 10 minutes (or your preference)
+    - Enable adhan for: None (disable all in Prayer Times settings)
+    
+    **Result:** You'll see notifications but won't hear the adhan.
+  </Accordion>
+</AccordionGroup>
+
+## System Notifications
+
+Praydo uses your system's notification system to display alerts:
+
+- **Windows**: Toast notifications in the system tray
+- **macOS**: Notification Center alerts
+- **Linux**: Desktop notifications via DBus
+
+<Warning>
+  Ensure that Praydo has notification permissions enabled in your system settings, otherwise you may not receive prayer time alerts.
+</Warning>
+
+## Notification Permissions
+
+To ensure you receive notifications:
+
+### Windows
+1. Open **Settings** > **System** > **Notifications**
+2. Find **Praydo** in the app list
+3. Enable notifications
+
+### macOS
+1. Open **System Settings** > **Notifications**
+2. Find **Praydo** in the app list
+3. Set notification style to "Alerts" or "Banners"
+4. Enable sound if desired
+
+### Linux
+1. Notification permissions vary by desktop environment
+2. Most Linux distributions allow notifications by default
+3. Check your desktop environment's notification settings if alerts aren't appearing
+
+## Autostart Integration
+
+For notifications to work when your computer starts, enable autostart in the [General Settings](/configuration/general-settings):
+
+1. Open **Settings** > **General** tab
+2. Enable **Autostart at system startup**
+3. Praydo will launch automatically and notifications will work from system startup
+
+<Tip>
+  Combine autostart with notification settings to ensure you never miss a prayer time, even right after booting your computer.
+</Tip>
+
+## Data Storage
+
+Alert settings are stored locally using Tauri's store plugin:
+
+- **Storage Key**: `alert` and `timeRemaining`
+- **Save Strategy**: Debounced (saved 1 second after changes)
+- **Persistence**: Settings persist across app restarts
+
+<Note>
+  All alert settings are saved automatically. You don't need to click a "Save" button - changes take effect immediately and are persisted in the background.
+</Note>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Notifications Not Appearing">
+    **Possible causes:**
+    1. System notifications are disabled for Praydo
+    2. No prayers have adhan enabled in Prayer Times settings
+    3. Focus Assist (Windows) or Do Not Disturb (macOS) is active
+    
+    **Solutions:**
+    1. Check system notification permissions
+    2. Verify at least one prayer has adhan enabled
+    3. Adjust Do Not Disturb settings to allow Praydo notifications
+  </Accordion>
+
+  <Accordion title="Adhan Not Playing">
+    **Possible causes:**
+    1. No prayers selected in "Play Adhan At" settings
+    2. System volume is muted
+    3. Audio permissions not granted to Praydo
+    
+    **Solutions:**
+    1. Enable adhan for desired prayers in Prayer Times settings
+    2. Check system volume settings
+    3. Verify audio permissions in system settings
+  </Accordion>
+
+  <Accordion title="Wrong Notification Timing">
+    **Possible causes:**
+    1. Notification timing not saved properly
+    2. System clock is incorrect
+    3. Location or calculation method is wrong
+    
+    **Solutions:**
+    1. Re-select notification timing and wait for auto-save (1 second)
+    2. Verify system clock is accurate
+    3. Check location and calculation method settings
+  </Accordion>
+</AccordionGroup>

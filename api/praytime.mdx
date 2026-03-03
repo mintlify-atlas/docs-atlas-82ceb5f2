@@ -1,0 +1,460 @@
+---
+title: 'PrayTime'
+description: 'Core prayer times calculation class based on PrayTimes.org library v3.2'
+---
+
+## Overview
+
+The `PrayTime` class is the core calculation engine for Praydo, providing astronomical calculations for Islamic prayer times. It's based on the PrayTimes.org library v3.2 by Hamid Zarrabi-Zadeh.
+
+## Constructor
+
+```typescript
+const praytime = new PrayTime(method?: CalculationMethod)
+```
+
+<ParamField path="method" type="CalculationMethod" default="MWL">
+  The calculation method to use. Available methods:
+  - `'MWL'` - Muslim World League
+  - `'ISNA'` - Islamic Society of North America
+  - `'Egypt'` - Egyptian General Authority of Survey
+  - `'Makkah'` - Umm Al-Qura University, Makkah
+  - `'Karachi'` - University of Islamic Sciences, Karachi
+  - `'Tehran'` - Institute of Geophysics, University of Tehran
+  - `'Jafari'` - Shia Ithna-Ashari, Leva Institute, Qum
+  - `'France'` - Union des Organisations Islamiques de France
+  - `'Russia'` - Spiritual Administration of Muslims of Russia
+  - `'Singapore'` - Majlis Ugama Islam Singapura
+  - `'NU'` - Nahdlatul Ulama Indonesia
+  - `'MU'` - Muhammadiyah Indonesia
+</ParamField>
+
+### Example
+
+```typescript
+import { PrayTime } from '$lib/praytime';
+
+const praytime = new PrayTime('ISNA');
+```
+
+## Configuration Methods
+
+All configuration methods return the `PrayTime` instance for method chaining.
+
+### method()
+
+Set the calculation method.
+
+```typescript
+method(method: CalculationMethod): PrayTime
+```
+
+<ParamField path="method" type="CalculationMethod" required>
+  The calculation method to use
+</ParamField>
+
+### location()
+
+Set the geographical location for prayer times calculation.
+
+```typescript
+location(location: [number, number]): PrayTime
+```
+
+<ParamField path="location" type="[number, number]" required>
+  An array containing `[latitude, longitude]` coordinates.
+  - **Latitude**: -90 to 90 (negative for South, positive for North)
+  - **Longitude**: -180 to 180 (negative for West, positive for East)
+</ParamField>
+
+#### Examples
+
+```typescript
+// Set location for Mecca, Saudi Arabia
+praytime.location([21.4225, 39.8262]);
+
+// Set location for Jakarta, Indonesia (South of equator, East longitude)
+praytime.location([-6.2088, 106.8456]);
+
+// Set location for New York, USA (North of equator, West longitude)
+praytime.location([40.7128, -74.0060]);
+```
+
+### timezone()
+
+Set the timezone for prayer times calculation.
+
+```typescript
+timezone(timezone: string): PrayTime
+```
+
+<ParamField path="timezone" type="string" required>
+  A string representing the IANA timezone identifier (e.g., `'America/New_York'`, `'Asia/Jakarta'`, `'Europe/London'`)
+</ParamField>
+
+#### Examples
+
+```typescript
+// Set timezone for Indonesia
+praytime.timezone('Asia/Jakarta');
+
+// Set timezone for Saudi Arabia
+praytime.timezone('Asia/Riyadh');
+
+// Set timezone for New York
+praytime.timezone('America/New_York');
+```
+
+### adjust()
+
+Adjust the calculation parameters for prayer times calculation.
+
+```typescript
+adjust(params: Partial<MethodParams>): PrayTime
+```
+
+<ParamField path="params" type="Partial<MethodParams>" required>
+  An object containing any of the following parameters:
+  - **fajr**: Twilight angle for Fajr (number)
+  - **dhuhr**: Minutes after mid-day (string with "min")
+  - **asr**: Asr juristic method - `'Standard'` (Shafii, Maliki, Jafari, Hanbali - shadow factor = 1) or `'Hanafi'` (shadow factor = 2)
+  - **maghrib**: Twilight angle (number) or minutes after sunset (string with "min")
+  - **isha**: Twilight angle (number) or minutes after Maghrib (string with "min")
+  - **midnight**: Midnight method - `'Standard'` (mean time from Sunset to Sunrise) or `'Jafari'` (mean time from Maghrib to Fajr)
+  - **highLats**: Higher latitudes adjustment method - `'NightMiddle'`, `'OneSeventh'`, `'AngleBased'`, or `'None'`
+</ParamField>
+
+See [PrayTimes.org Manual](https://praytimes.org/docs/manual) for more details.
+
+#### Example
+
+```typescript
+praytime.adjust({
+  fajr: 18,
+  isha: '90 min',
+  asr: 'Hanafi',
+  highLats: 'NightMiddle'
+});
+```
+
+### tune()
+
+Fine-tune prayer times by adding or subtracting minutes.
+
+```typescript
+tune(tune: Record<string, number>): PrayTime
+```
+
+<ParamField path="tune" type="Record<string, number>" required>
+  An object mapping prayer names to minute adjustments (can be positive or negative)
+</ParamField>
+
+#### Example
+
+```typescript
+// Add 2 minutes to Fajr, subtract 1 minute from Maghrib
+praytime.tune({
+  fajr: 2,
+  maghrib: -1
+});
+```
+
+### format()
+
+Set the output time format.
+
+```typescript
+format(format: TimeFormat): PrayTime
+```
+
+<ParamField path="format" type="TimeFormat" required>
+  The time format to use:
+  - `'24h'` - 24-hour format (e.g., "13:45")
+  - `'12h'` - 12-hour format with AM/PM (e.g., "1:45 PM")
+  - `'12H'` - 12-hour format without AM/PM (e.g., "1:45")
+  - `'x'` - Unix timestamp in milliseconds
+  - `'X'` - Unix timestamp in seconds
+  - Custom function: `(timestamp: number) => string`
+</ParamField>
+
+#### Example
+
+```typescript
+praytime.format('12h'); // "5:30 AM"
+praytime.format('24h'); // "05:30"
+```
+
+### round()
+
+Set the rounding method for prayer times.
+
+```typescript
+round(rounding: RoundingMethod = 'nearest'): PrayTime
+```
+
+<ParamField path="rounding" type="RoundingMethod" default="nearest">
+  The rounding method:
+  - `'nearest'` - Round to nearest minute
+  - `'up'` - Round up (ceiling)
+  - `'down'` - Round down (floor)
+  - `'none'` - No rounding
+</ParamField>
+
+### utcOffset()
+
+Set UTC offset in minutes.
+
+```typescript
+utcOffset(utcOffset: number | 'auto' = 'auto'): PrayTime
+```
+
+<ParamField path="utcOffset" type="number | 'auto'" default="auto">
+  UTC offset in minutes, or `'auto'` to use system timezone
+</ParamField>
+
+<Info>
+Calling this method sets the timezone to `'UTC'`.
+</Info>
+
+### utcOffsetHours()
+
+Set UTC offset in hours.
+
+```typescript
+utcOffsetHours(hours: number): PrayTime
+```
+
+<ParamField path="hours" type="number" required>
+  UTC offset in hours
+</ParamField>
+
+## Calculation Methods
+
+### getTimes()
+
+Get prayer times for a specific date, location, and timezone.
+
+```typescript
+getTimes(
+  date?: number | Date | [number, number, number],
+  location?: [number, number],
+  timezone: string | number = 'auto',
+  dst: number = 0,
+  format: TimeFormat = '24h'
+): Record<string, string>
+```
+
+<ParamField path="date" type="number | Date | [number, number, number]" default="current date">
+  The date for which to calculate prayer times:
+  - **Date object**: `new Date()`
+  - **Timestamp**: Unix timestamp in milliseconds
+  - **Days offset**: Number < 1000 (e.g., `0` = today, `1` = tomorrow, `-1` = yesterday)
+  - **Array**: `[year, month, day]` (month is 1-based)
+</ParamField>
+
+<ParamField path="location" type="[number, number]">
+  Coordinates `[latitude, longitude]`. If not provided, uses previously set location.
+</ParamField>
+
+<ParamField path="timezone" type="string | number" default="auto">
+  IANA timezone string (e.g., `'Asia/Jakarta'`) or UTC offset in hours
+</ParamField>
+
+<ParamField path="dst" type="number" default="0">
+  Daylight Saving Time adjustment in hours (usually 0 or 1)
+</ParamField>
+
+<ParamField path="format" type="TimeFormat" default="24h">
+  Output time format
+</ParamField>
+
+<ResponseField name="return" type="Record<string, string>">
+  An object containing prayer times with the following keys:
+  - `fajr` - Fajr prayer time
+  - `sunrise` - Sunrise time
+  - `dhuhr` - Dhuhr prayer time
+  - `asr` - Asr prayer time
+  - `sunset` - Sunset time
+  - `maghrib` - Maghrib prayer time
+  - `isha` - Isha prayer time
+  - `midnight` - Midnight time
+</ResponseField>
+
+#### Examples
+
+```typescript
+// Get prayer times for Jakarta, Indonesia
+const times = praytime.getTimes(
+  new Date(), // current date
+  [-6.2088, 106.8456], // Jakarta coordinates
+  'Asia/Jakarta' // timezone
+);
+
+console.log(times);
+// {
+//   fajr: "04:45",
+//   sunrise: "06:00",
+//   dhuhr: "12:05",
+//   asr: "15:25",
+//   sunset: "18:10",
+//   maghrib: "18:10",
+//   isha: "19:20",
+//   midnight: "00:05"
+// }
+
+// Get prayer times for Mecca with 12-hour format
+const meccaTimes = praytime.getTimes(
+  new Date(),
+  [21.4225, 39.8262],
+  'Asia/Riyadh',
+  0,
+  '12h'
+);
+
+console.log(meccaTimes.fajr); // "4:45 AM"
+```
+
+### times()
+
+Get prayer times using previously configured location and timezone.
+
+```typescript
+times(date: number | Date | [number, number, number] = 0): Record<string, string>
+```
+
+<ParamField path="date" type="number | Date | [number, number, number]" default="0 (today)">
+  The date for which to calculate prayer times
+</ParamField>
+
+<ResponseField name="return" type="Record<string, string>">
+  An object containing prayer times
+</ResponseField>
+
+#### Example
+
+```typescript
+const praytime = new PrayTime('ISNA');
+praytime.location([43, -80]).timezone('America/Toronto');
+
+const times = praytime.times(); // Today's times
+const tomorrow = praytime.times(1); // Tomorrow's times
+```
+
+## Type Definitions
+
+### CalculationMethod
+
+```typescript
+type CalculationMethod =
+  | 'MWL'
+  | 'ISNA'
+  | 'Egypt'
+  | 'Makkah'
+  | 'Karachi'
+  | 'Tehran'
+  | 'Jafari'
+  | 'France'
+  | 'Russia'
+  | 'Singapore'
+  | 'NU'
+  | 'MU';
+```
+
+### MethodParams
+
+```typescript
+interface MethodParams {
+  fajr?: number;
+  dhuhr?: string;
+  asr?: AsrMethod;
+  maghrib?: number | string;
+  isha?: number | string;
+  midnight?: MidnightMethod;
+  highLats?: HighLatitudeMethod;
+}
+```
+
+### AsrMethod
+
+```typescript
+type AsrMethod = 'Standard' | 'Hanafi' | number | string;
+```
+
+### HighLatitudeMethod
+
+```typescript
+type HighLatitudeMethod = 'NightMiddle' | 'OneSeventh' | 'AngleBased' | 'None';
+```
+
+### MidnightMethod
+
+```typescript
+type MidnightMethod = 'Standard' | 'Jafari';
+```
+
+### RoundingMethod
+
+```typescript
+type RoundingMethod = 'nearest' | 'up' | 'down' | 'none';
+```
+
+### TimeFormat
+
+```typescript
+type TimeFormat =
+  | '24h'
+  | '12h'
+  | '12H'
+  | 'x'
+  | 'X'
+  | ((timestamp: number) => string);
+```
+
+## Complete Usage Example
+
+```typescript
+import { PrayTime } from '$lib/praytime';
+
+// Initialize with calculation method
+const praytime = new PrayTime('ISNA');
+
+// Configure location and timezone (method chaining)
+praytime
+  .location([43, -80])
+  .timezone('America/Toronto')
+  .format('12h')
+  .round('nearest');
+
+// Adjust calculation parameters
+praytime.adjust({
+  asr: 'Hanafi',
+  highLats: 'AngleBased'
+});
+
+// Fine-tune times
+praytime.tune({
+  fajr: 2,
+  isha: -1
+});
+
+// Get prayer times
+const times = praytime.getTimes();
+console.log(times);
+// {
+//   fajr: "5:30 AM",
+//   sunrise: "7:15 AM",
+//   dhuhr: "12:45 PM",
+//   asr: "4:20 PM",
+//   sunset: "6:15 PM",
+//   maghrib: "6:15 PM",
+//   isha: "7:45 PM",
+//   midnight: "12:45 AM"
+// }
+```
+
+## Attribution
+
+Based on PrayTimes.org library v3.2  
+Copyright (c) 2007-2025 Hamid Zarrabi-Zadeh  
+License: MIT  
+Source: [https://praytimes.org](https://praytimes.org)

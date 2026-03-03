@@ -1,0 +1,475 @@
+---
+title: 'PrayerManager'
+description: 'Svelte 5 reactive state manager for prayer times, notifications, and Islamic calendar'
+---
+
+## Overview
+
+The `PrayerManager` class is a Svelte 5 reactive state manager that orchestrates prayer times calculation, countdown timers, notifications, and Islamic calendar integration. It uses Svelte's `$state` and `$derived` runes for reactive state management.
+
+## Constructor
+
+```typescript
+const manager = new PrayerManager()
+```
+
+The constructor automatically starts a 1-second interval timer that:
+- Updates the current time
+- Checks for prayer time notifications
+- Triggers notification sounds
+- Updates countdown timers
+
+<Warning>
+Remember to call `destroy()` when the component unmounts to clean up the interval timer.
+</Warning>
+
+### Example
+
+```svelte
+<script lang="ts">
+import { PrayerManager } from '$lib/logic/PrayerManager.svelte';
+
+const manager = new PrayerManager();
+
+// Clean up on unmount
+$effect(() => {
+  return () => manager.destroy();
+});
+</script>
+```
+
+## Instance Methods
+
+### destroy()
+
+Clean up the interval timer. Must be called when the component unmounts.
+
+```typescript
+destroy(): void
+```
+
+#### Example
+
+```svelte
+<script lang="ts">
+import { onDestroy } from 'svelte';
+import { PrayerManager } from '$lib/logic/PrayerManager.svelte';
+
+const manager = new PrayerManager();
+
+onDestroy(() => {
+  manager.destroy();
+});
+</script>
+```
+
+### getMonthSchedule()
+
+Get prayer times for all days in a specific month.
+
+```typescript
+getMonthSchedule(
+  year: number,
+  month: number
+): Array<{ day: number; prayers: PrayerTimes }>
+```
+
+<ParamField path="year" type="number" required>
+  The year (e.g., `2024`)
+</ParamField>
+
+<ParamField path="month" type="number" required>
+  The month (0-based, where 0 = January, 11 = December)
+</ParamField>
+
+<ResponseField name="return" type="Array<{ day: number; prayers: PrayerTimes }>">
+  An array of objects, each containing:
+  - `day` - Day of the month (1-31)
+  - `prayers` - Prayer times object with `fajr`, `sunrise`, `dhuhr`, `asr`, `maghrib`, `isha`
+</ResponseField>
+
+#### Example
+
+```typescript
+const manager = new PrayerManager();
+
+// Get prayer times for January 2024
+const schedule = manager.getMonthSchedule(2024, 0);
+
+schedule.forEach(({ day, prayers }) => {
+  console.log(`Day ${day}: Fajr at ${prayers.fajr}`);
+});
+// Day 1: Fajr at 5:30 AM
+// Day 2: Fajr at 5:31 AM
+// ...
+```
+
+## Reactive State Properties
+
+All properties below are reactive and automatically update when dependencies change.
+
+### currentTime
+
+The current time, updated every second.
+
+```typescript
+currentTime: Date
+```
+
+#### Example
+
+```svelte
+<script lang="ts">
+const manager = new PrayerManager();
+</script>
+
+<p>Current time: {manager.currentTime.toLocaleTimeString()}</p>
+```
+
+### formattedDate
+
+The current date formatted as a human-readable string.
+
+```typescript
+formattedDate: string
+```
+
+**Format**: `"weekday, month day, year"` (e.g., `"Monday, January 15, 2024"`)
+
+#### Example
+
+```svelte
+<p>{manager.formattedDate}</p>
+<!-- Output: "Monday, January 15, 2024" -->
+```
+
+### islamicDate
+
+The current Islamic (Hijri) date formatted as a string.
+
+```typescript
+islamicDate: string
+```
+
+**Format**: Uses the `formatHijriDate()` utility function
+
+#### Example
+
+```svelte
+<p>{manager.islamicDate}</p>
+<!-- Output: "15 Rajab 1445" -->
+```
+
+### isSetupRequired
+
+Indicates whether the user needs to set up their location.
+
+```typescript
+isSetupRequired: boolean
+```
+
+Returns `true` if location label or ID is not set.
+
+#### Example
+
+```svelte
+{#if manager.isSetupRequired}
+  <p>Please set up your location</p>
+{/if}
+```
+
+### currentLocationLabel
+
+The formatted label for the current selected location.
+
+```typescript
+currentLocationLabel: string
+```
+
+#### Example
+
+```svelte
+<p>Location: {manager.currentLocationLabel}</p>
+<!-- Output: "Jakarta, Indonesia" -->
+```
+
+### qiblaDirection
+
+The Qibla direction (bearing to Mecca) from the current location in degrees.
+
+```typescript
+qiblaDirection: number
+```
+
+**Range**: 0-360 degrees (0 = North, 90 = East, 180 = South, 270 = West)
+
+#### Example
+
+```svelte
+<script lang="ts">
+const manager = new PrayerManager();
+</script>
+
+<div style="transform: rotate({manager.qiblaDirection}deg)">
+  ↑ Qibla
+</div>
+```
+
+### todaysPrayerTimes
+
+Prayer times for today.
+
+```typescript
+todaysPrayerTimes: Record<string, string>
+```
+
+#### Example
+
+```svelte
+<p>Fajr: {manager.todaysPrayerTimes.fajr}</p>
+<p>Dhuhr: {manager.todaysPrayerTimes.dhuhr}</p>
+<p>Asr: {manager.todaysPrayerTimes.asr}</p>
+```
+
+### tomorrowsPrayerTimes
+
+Prayer times for tomorrow.
+
+```typescript
+tomorrowsPrayerTimes: Record<string, string>
+```
+
+#### Example
+
+```svelte
+<h3>Tomorrow's Prayer Times</h3>
+<p>Fajr: {manager.tomorrowsPrayerTimes.fajr}</p>
+```
+
+### enabledPrayers
+
+List of prayers that are enabled in user settings, sorted chronologically.
+
+```typescript
+enabledPrayers: Array<{
+  name: PrayerName;
+  time: string;
+  enabled: boolean;
+}>
+```
+
+#### Example
+
+```svelte
+{#each manager.enabledPrayers as prayer}
+  <div>
+    <strong>{prayer.name}:</strong> {prayer.time}
+  </div>
+{/each}
+```
+
+### nextPrayer
+
+The next upcoming prayer.
+
+```typescript
+nextPrayer: {
+  name: PrayerName;
+  time: string;
+  date: Date;
+  enabled: boolean;
+  isToday: boolean;
+} | null
+```
+
+<ResponseField name="name" type="PrayerName">
+  The name of the prayer (`'Fajr'`, `'Sunrise'`, `'Dhuhr'`, `'Asr'`, `'Maghrib'`, `'Isha'`)
+</ResponseField>
+
+<ResponseField name="time" type="string">
+  The formatted time string (e.g., `"5:30 AM"`)
+</ResponseField>
+
+<ResponseField name="date" type="Date">
+  The exact Date object for the prayer time
+</ResponseField>
+
+<ResponseField name="enabled" type="boolean">
+  Whether this prayer is enabled in settings
+</ResponseField>
+
+<ResponseField name="isToday" type="boolean">
+  `true` if the prayer is today, `false` if it's tomorrow
+</ResponseField>
+
+#### Example
+
+```svelte
+{#if manager.nextPrayer}
+  <div>
+    <h3>Next Prayer: {manager.nextPrayer.name}</h3>
+    <p>Time: {manager.nextPrayer.time}</p>
+    <p>{manager.nextPrayer.isToday ? 'Today' : 'Tomorrow'}</p>
+  </div>
+{/if}
+```
+
+### countdownString
+
+Countdown to the next prayer in `HH:MM:SS` format.
+
+```typescript
+countdownString: string
+```
+
+**Format**: `"HH:MM:SS"` (e.g., `"02:15:30"`)
+
+#### Example
+
+```svelte
+<div class="countdown">
+  <h2>{manager.countdownString}</h2>
+  <p>until {manager.nextPrayer?.name}</p>
+</div>
+```
+
+## Notification System
+
+The `PrayerManager` automatically handles two types of notifications:
+
+### 1. Pre-Prayer Notification
+
+Triggered N minutes before each prayer time (configured in `timeRemaining` store).
+
+**Title**: `"{N} Minutes Until {Prayer} Time"`  
+**Body**: `"{Prayer} Time: {time}."`  
+**Sound**: `solemn.mp3`
+
+### 2. Prayer Time Notification
+
+Triggered exactly at prayer time.
+
+**Title**: `"{Prayer} Time {time}"`  
+**Body**: `"{Prayer} time in {location}."`  
+**Sound**:
+- Fajr: `adhan-fajr.mp3` (if alerts enabled)
+- Other prayers: `adhan-makkah.mp3` (if alerts enabled)
+- Default: `solemn.mp3` (if alerts disabled)
+
+<Info>
+Notifications automatically request permission from the user on first use.
+</Info>
+
+## Integration with Stores
+
+The `PrayerManager` integrates with several Svelte stores:
+
+- **`selectedLocation`** - User's selected location (latitude, longitude, label)
+- **`calculationSettings`** - Prayer calculation method and parameters
+- **`selectedTimes`** - Which prayer times are enabled and time format
+- **`timeRemaining`** - Minutes before prayer for pre-prayer notification
+- **`selectedAlert`** - Which prayers should play full adhan
+
+## Type Definitions
+
+### PrayerName
+
+```typescript
+type PrayerName =
+  | 'Fajr'
+  | 'Sunrise'
+  | 'Dhuhr'
+  | 'Asr'
+  | 'Maghrib'
+  | 'Isha';
+```
+
+### PrayerTimes
+
+```typescript
+interface PrayerTimes {
+  fajr: string;
+  sunrise: string;
+  dhuhr: string;
+  asr: string;
+  maghrib: string;
+  isha: string;
+  [key: string]: string; // Allows midnight, sunset, etc.
+}
+```
+
+### PrayerDisplay
+
+```typescript
+interface PrayerDisplay {
+  name: PrayerName;
+  time: string;
+  enabled: boolean;
+}
+```
+
+## Complete Usage Example
+
+```svelte
+<script lang="ts">
+import { PrayerManager } from '$lib/logic/PrayerManager.svelte';
+import { onDestroy } from 'svelte';
+
+const manager = new PrayerManager();
+
+// Get monthly schedule for calendar view
+const currentMonth = new Date().getMonth();
+const currentYear = new Date().getFullYear();
+const monthSchedule = manager.getMonthSchedule(currentYear, currentMonth);
+
+// Clean up interval on component destroy
+onDestroy(() => {
+  manager.destroy();
+});
+</script>
+
+<!-- Display current date and time -->
+<header>
+  <h1>{manager.formattedDate}</h1>
+  <p>{manager.islamicDate}</p>
+  <p>Location: {manager.currentLocationLabel}</p>
+</header>
+
+<!-- Countdown to next prayer -->
+{#if manager.nextPrayer}
+  <div class="countdown">
+    <h2>{manager.countdownString}</h2>
+    <p>until {manager.nextPrayer.name} at {manager.nextPrayer.time}</p>
+  </div>
+{/if}
+
+<!-- Today's prayer times -->
+<div class="prayer-times">
+  <h3>Today's Prayer Times</h3>
+  {#each manager.enabledPrayers as prayer}
+    <div class="prayer">
+      <span>{prayer.name}</span>
+      <span>{prayer.time}</span>
+    </div>
+  {/each}
+</div>
+
+<!-- Qibla direction -->
+<div class="qibla">
+  <div style="transform: rotate({manager.qiblaDirection}deg)">
+    ↑ Qibla ({manager.qiblaDirection.toFixed(1)}°)
+  </div>
+</div>
+
+<!-- Monthly calendar -->
+<div class="calendar">
+  <h3>This Month</h3>
+  {#each monthSchedule as { day, prayers }}
+    <div class="day">
+      <strong>Day {day}</strong>
+      <div>Fajr: {prayers.fajr}</div>
+      <div>Maghrib: {prayers.maghrib}</div>
+    </div>
+  {/each}
+</div>
+```

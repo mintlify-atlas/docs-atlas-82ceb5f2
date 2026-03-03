@@ -1,0 +1,196 @@
+---
+title: Qibla Compass
+description: Find the direction to Makkah from anywhere in the world with the built-in Qibla compass
+---
+
+Praydo includes an integrated Qibla compass that shows the direction to Makkah (Mecca) from your current location. The compass appears on the main dashboard and updates automatically when you change your location.
+
+## What is Qibla?
+
+Qibla (قِبْلَة) is the direction Muslims face during prayer, pointing towards the Kaaba in Makkah, Saudi Arabia. Knowing the precise Qibla direction is essential for performing the five daily prayers correctly.
+
+## Qibla Compass Display
+
+The Qibla compass is located in the **Location & Qibla widget** on the right side of the main dashboard.
+
+### Compass Features
+
+- **Compass Rose**: A circular compass with cardinal direction markers (N for North)
+- **Rotating Arrow**: A green arrow that points toward Makkah
+- **Bearing Display**: Hover over the compass to see the exact bearing in degrees
+- **Smooth Animation**: The arrow rotates smoothly when your location changes (700ms transition)
+
+<Info>
+The compass arrow always points toward Makkah. To use it, face the direction the arrow is pointing.
+</Info>
+
+## How to Use the Qibla Compass
+
+<Steps>
+  <Step title="Ensure Location is Set">
+    The Qibla compass requires an accurate location. Make sure you've set your location in Settings > Location.
+  </Step>
+  
+  <Step title="View the Compass">
+    The compass appears automatically on the main dashboard in the Location widget (bottom-right card).
+  </Step>
+  
+  <Step title="Check the Bearing">
+    Hover over or view the compass to see the exact degree bearing. For example: "Qibla Direction: 58°"
+  </Step>
+  
+  <Step title="Align Yourself">
+    Face the direction indicated by the green arrow. This is the direction to Makkah from your location.
+  </Step>
+</Steps>
+
+### Understanding Bearings
+
+The bearing is expressed in degrees from 0 to 360:
+
+- **0° / 360°**: North
+- **90°**: East  
+- **180°**: South
+- **270°**: West
+
+For example, if your Qibla bearing is 58°, you would face roughly northeast.
+
+## How Qibla Direction is Calculated
+
+Praydo uses the **Great Circle** method to calculate the shortest distance between two points on Earth's surface. This is the most accurate method for determining Qibla direction.
+
+### Calculation Formula
+
+The app uses this mathematical approach:
+
+```typescript
+function calculateQiblaBearing(latitude: number, longitude: number): number {
+  // Convert coordinates to radians
+  const lat1 = latitude * (Math.PI / 180);
+  const lon1 = longitude * (Math.PI / 180);
+  
+  // Makkah coordinates (Kaaba)
+  const MAKKAH_LAT = 21.422487 * (Math.PI / 180);
+  const MAKKAH_LON = 39.826206 * (Math.PI / 180);
+  
+  // Calculate bearing using Great Circle formula
+  const dLon = MAKKAH_LON - lon1;
+  const y = Math.sin(dLon) * Math.cos(MAKKAH_LAT);
+  const x = Math.cos(lat1) * Math.sin(MAKKAH_LAT) - 
+            Math.sin(lat1) * Math.cos(MAKKAH_LAT) * Math.cos(dLon);
+  
+  let bearing = Math.atan2(y, x) * (180 / Math.PI);
+  
+  // Normalize to 0-360 degrees
+  return (bearing + 360) % 360;
+}
+```
+
+### Kaaba Coordinates
+
+The calculation uses the precise coordinates of the Kaaba:
+
+- **Latitude**: 21.422487° N
+- **Longitude**: 39.826206° E
+
+## Compass Component Details
+
+The Qibla compass is a self-contained Svelte component with these characteristics:
+
+### Visual Elements
+
+1. **Static Compass Rose**
+   - Shows cardinal directions
+   - Gray circular border
+   - "N" marker at the top for North
+   - Tick marks at cardinal points (N, S, E, W)
+
+2. **Rotating Qibla Arrow**
+   - Primary green color (from theme)
+   - Pointed arrow shape
+   - Rotates based on calculated bearing
+   - Smooth 700ms transition animation
+   - Drop shadow for depth
+
+### Size Customization
+
+The compass defaults to 48×48 pixels but can be customized:
+
+- **Main Dashboard**: 72×72 pixels (larger for better visibility)
+- **Customizable**: Pass `size` prop to change dimensions
+
+## Real-World Usage Tips
+
+<CardGroup cols={2}>
+  <Card title="Indoor Use" icon="house">
+    The compass shows direction but doesn't use your device's magnetometer. Use it with a real compass or phone compass app to orient yourself.
+  </Card>
+  
+  <Card title="Verification" icon="check">
+    Compare with other Qibla apps or a physical compass to verify accuracy, especially if you're unsure about your location precision.
+  </Card>
+  
+  <Card title="Location Accuracy" icon="location-dot">
+    The more precise your location (full address vs. just city), the more accurate the Qibla direction will be.
+  </Card>
+  
+  <Card title="Automatic Updates" icon="rotate">
+    The Qibla direction updates automatically whenever you change your location in settings.
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+### Arrow Points to Wrong Direction
+
+<AccordionGroup>
+  <Accordion title="Check Your Location">
+    Verify your location is set correctly in Settings > Location. An incorrect location will give an incorrect Qibla direction.
+  </Accordion>
+  
+  <Accordion title="Verify Coordinates">
+    Check the latitude and longitude shown in your location settings. They should match your actual position.
+  </Accordion>
+  
+  <Accordion title="Use Multiple Sources">
+    Compare with other Qibla apps or websites to verify. Small differences (1-2 degrees) are normal due to different calculation methods.
+  </Accordion>
+</AccordionGroup>
+
+### Compass Not Showing
+
+<AccordionGroup>
+  <Accordion title="Location Not Set">
+    The compass requires a valid location. Go to Settings > Location and search for your location.
+  </Accordion>
+  
+  <Accordion title="Invalid Coordinates">
+    If coordinates are 0,0 or invalid, the compass may not display correctly. Reset your location.
+  </Accordion>
+</AccordionGroup>
+
+## Using with Device Compass
+
+For the best experience, use Praydo's Qibla bearing with your device's built-in compass:
+
+<Steps>
+  <Step title="Note the Bearing">
+    Check the Qibla bearing shown in Praydo (e.g., 58°)
+  </Step>
+  
+  <Step title="Open Compass App">
+    Open your phone's compass app or use a physical compass
+  </Step>
+  
+  <Step title="Orient to Bearing">
+    Turn until your compass shows the same degree bearing
+  </Step>
+  
+  <Step title="Face That Direction">
+    The direction you're now facing is toward Makkah
+  </Step>
+</Steps>
+
+<Note>
+The Qibla compass in Praydo is a visual indicator showing the calculated direction. It doesn't use your device's magnetometer or sensors.
+</Note>

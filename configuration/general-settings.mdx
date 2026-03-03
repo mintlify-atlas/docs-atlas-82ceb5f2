@@ -1,0 +1,271 @@
+---
+title: General Settings
+description: Configure general application settings including autostart, theme, and app information
+---
+
+General settings control application-wide preferences that affect how Praydo behaves and appears on your system.
+
+## Autostart
+
+Configure whether Praydo launches automatically when your system starts.
+
+<ParamField path="autostart" type="boolean" default="false">
+  Enable or disable automatic launch at system startup.
+  
+  When enabled, Praydo will start automatically when you log into your computer, ensuring you never miss prayer time notifications.
+</ParamField>
+
+### Configuring Autostart
+
+1. Open **Settings** from the main menu
+2. Navigate to the **General** tab
+3. Toggle the **Autostart at system startup** switch
+4. Changes are applied immediately
+
+<Info>
+  Autostart status is managed through the Tauri autostart plugin, which integrates with your operating system's autostart mechanisms.
+</Info>
+
+### Platform-Specific Behavior
+
+<AccordionGroup>
+  <Accordion title="Windows">
+    On Windows, autostart is configured through the Windows Registry:
+    
+    - Creates an entry in `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`
+    - The app launches silently in the background when you log in
+    - You can also manage autostart through Task Manager > Startup tab
+  </Accordion>
+
+  <Accordion title="macOS">
+    On macOS, autostart uses Launch Agents:
+    
+    - Creates a launch agent in `~/Library/LaunchAgents/`
+    - The app launches when you log in to your user account
+    - You can also manage autostart in System Settings > General > Login Items
+  </Accordion>
+
+  <Accordion title="Linux">
+    On Linux, autostart follows the XDG Autostart specification:
+    
+    - Creates a `.desktop` file in `~/.config/autostart/`
+    - Compatible with most desktop environments (GNOME, KDE, XFCE, etc.)
+    - You can also manage autostart through your desktop environment's settings
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+  Enabling autostart is recommended to ensure you receive prayer time notifications throughout the day without needing to manually launch the app.
+</Tip>
+
+## Theme Settings
+
+Customize the visual appearance of Praydo with light and dark mode options.
+
+<ParamField path="darkMode" type="boolean" default="system">
+  Toggle between light mode and dark mode.
+  
+  The theme affects the entire application interface, making it comfortable to use in different lighting conditions.
+</ParamField>
+
+### Switching Themes
+
+1. Open **Settings** from the main menu
+2. Navigate to the **General** tab
+3. Toggle the **Dark Mode** switch
+4. The theme changes immediately without requiring a restart
+
+<Note>
+  Theme preference is stored locally and persists across app restarts. The setting is managed through Skeleton UI's Lightswitch component.
+</Note>
+
+## App Information
+
+View important information about your Praydo installation.
+
+### App Version
+
+The current version of Praydo is displayed in the General settings tab. This information is useful for:
+
+- Verifying you're running the latest version
+- Troubleshooting issues with support
+- Checking compatibility with features
+
+<Info>
+  Version information is retrieved automatically from the Tauri app configuration. If the version shows as "Unknown," there may be an issue with the app installation.
+</Info>
+
+## System Integration
+
+Praydo integrates with your operating system to provide a seamless experience.
+
+### System Tray
+
+Praydo runs in the system tray (Windows), menu bar (macOS), or system tray (Linux):
+
+- Click the tray icon to show/hide the main window
+- Right-click for quick access to settings and quit options
+- The icon may display the next prayer time (depending on configuration)
+
+### Window Behavior
+
+- **Minimize to tray**: When you close the main window, Praydo continues running in the background
+- **Restore**: Click the tray icon to restore the window
+- **Quit**: Use the tray menu or File > Quit to fully exit the application
+
+## Data Storage
+
+Praydo stores all settings locally on your computer:
+
+- **Location**: Settings are stored in your system's app data directory
+- **Format**: JSON files managed by Tauri Store plugin
+- **Privacy**: All data remains on your device; nothing is sent to external servers
+
+### Storage Locations
+
+<CodeGroup>
+```bash Windows
+%APPDATA%\com.praydo.app\
+```
+
+```bash macOS
+~/Library/Application Support/com.praydo.app/
+```
+
+```bash Linux
+~/.config/com.praydo.app/
+```
+</CodeGroup>
+
+## Settings Management
+
+### Auto-Save
+
+All general settings are automatically saved:
+
+- **Save Strategy**: Changes are saved immediately (autostart, theme)
+- **Persistence**: Settings persist across app restarts
+- **No manual save required**: Changes take effect instantly
+
+### Backup and Reset
+
+To backup or reset your settings:
+
+1. **Backup**: Copy the settings files from the storage location above
+2. **Reset**: Delete the settings files and restart Praydo (default settings will be created)
+3. **Restore**: Replace the settings files with your backup and restart
+
+<Warning>
+  Deleting settings files will reset all Praydo configurations to defaults, including location, calculation method, and notification preferences.
+</Warning>
+
+## Performance Considerations
+
+### Resource Usage
+
+Praydo is designed to be lightweight:
+
+- **Memory**: Minimal RAM usage (typically < 100 MB)
+- **CPU**: Negligible CPU usage when idle
+- **Disk**: Small storage footprint (< 50 MB including settings)
+
+### Background Operation
+
+When running in the background:
+
+- Praydo monitors prayer times and triggers notifications
+- Updates prayer times automatically at midnight
+- Remains responsive without impacting system performance
+
+<Tip>
+  Even with autostart enabled, Praydo's resource usage is minimal and won't slow down your system startup.
+</Tip>
+
+## Updates
+
+### Checking for Updates
+
+To check if you're running the latest version:
+
+1. Note your current version in **Settings** > **General**
+2. Visit the [Praydo releases page](https://github.com/your-repo/praydo/releases)
+3. Compare your version with the latest release
+4. Download and install updates if available
+
+<Info>
+  Automatic update checking may be added in future versions. For now, check manually for the latest releases.
+</Info>
+
+## Accessibility
+
+Praydo is built with accessibility in mind:
+
+- **Keyboard Navigation**: Full keyboard support throughout the app
+- **Screen Readers**: Compatible with system screen readers
+- **High Contrast**: Works well with system high-contrast themes
+- **Text Scaling**: Respects system text size preferences
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Autostart Not Working">
+    **Possible causes:**
+    1. Insufficient permissions to modify system autostart settings
+    2. Security software blocking autostart configuration
+    3. App was moved after enabling autostart
+    
+    **Solutions:**
+    1. Run the app with appropriate permissions
+    2. Add Praydo to security software's allowed list
+    3. Disable and re-enable autostart if you moved the app
+    4. Manually configure autostart through system settings
+  </Accordion>
+
+  <Accordion title="Theme Not Changing">
+    **Possible causes:**
+    1. Browser cache (if using web version)
+    2. Settings not saving properly
+    
+    **Solutions:**
+    1. Restart the application
+    2. Check that settings file is writable
+    3. Try toggling the theme switch multiple times
+  </Accordion>
+
+  <Accordion title="Version Shows as 'Unknown'">
+    **Possible causes:**
+    1. Corrupted installation
+    2. Running a development build
+    3. Tauri configuration issue
+    
+    **Solutions:**
+    1. Reinstall Praydo from official sources
+    2. If developing, check Tauri configuration
+    3. Check file permissions on app directory
+  </Accordion>
+
+  <Accordion title="App Not Appearing in System Tray">
+    **Possible causes:**
+    1. System tray is hidden
+    2. Too many tray icons (icon overflow)
+    3. Desktop environment doesn't support system tray
+    
+    **Solutions:**
+    1. Check system tray settings
+    2. Close other tray applications to free space
+    3. Use the main window instead of tray icon
+    4. Check desktop environment compatibility
+  </Accordion>
+</AccordionGroup>
+
+## Related Settings
+
+General settings work together with other configuration options:
+
+- **[Calculation Methods](/configuration/calculation-methods)**: Set prayer time calculation
+- **[Prayer Settings](/configuration/prayer-settings)**: Configure time display and adhan
+- **[Alert Settings](/configuration/alert-settings)**: Set up notifications
+
+<Note>
+  For the best experience, configure all settings sections according to your preferences and location.
+</Note>

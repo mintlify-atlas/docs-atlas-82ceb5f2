@@ -1,0 +1,108 @@
+---
+title: Prayer Times
+description: View accurate daily prayer times based on your location with real-time countdown and multiple calculation methods
+---
+
+Praydo provides accurate prayer times for all six daily prayers: **Fajr**, **Sunrise**, **Dhuhr**, **Asr**, **Maghrib**, and **Isha**. The app calculates prayer times based on your location and displays them with a real-time countdown to the next prayer.
+
+## Prayer Times Display
+
+The main dashboard shows all your enabled prayer times in a clean, easy-to-read format:
+
+- **Next Prayer Card**: A large display showing the upcoming prayer with a countdown timer in hours, minutes, and seconds
+- **Prayer Timeline**: A horizontal timeline at the bottom showing all enabled prayers for the day
+- **Current Prayer Highlight**: The next prayer is automatically highlighted with a pulsing indicator
+
+### Prayer Names
+
+Praydo tracks the following prayers:
+
+| Prayer | Description | Icon |
+|--------|-------------|------|
+| **Fajr** | Dawn prayer before sunrise | Moon |
+| **Sunrise** | Sun rising time (not a prayer, but tracked for timing) | Sunrise |
+| **Dhuhr** | Midday prayer after the sun passes its zenith | Sun |
+| **Asr** | Afternoon prayer | Sun |
+| **Maghrib** | Sunset prayer | Sunset |
+| **Isha** | Night prayer | Moon |
+
+## Real-Time Countdown
+
+The app features a live countdown timer that shows the exact time remaining until the next prayer:
+
+```
+02:34:15
+```
+
+The countdown is displayed in `HH:MM:SS` format and updates every second. When all prayers for the current day have passed, the countdown automatically switches to show the time until the first prayer of the next day (typically Fajr).
+
+<Note>
+The countdown timer runs continuously in the background, ensuring you always have an accurate time remaining until the next prayer.
+</Note>
+
+## Customizing Prayer Times
+
+### Selecting Which Prayers to Display
+
+You can choose which prayers to display in the app:
+
+<Steps>
+  <Step title="Open Settings">
+    Click the Settings icon in the bottom-right corner of the main dashboard
+  </Step>
+  
+  <Step title="Navigate to Prayer Times">
+    Select the "Prayer Times" tab (calendar icon)
+  </Step>
+  
+  <Step title="Toggle Prayers">
+    Check or uncheck the prayers you want to show:
+    - Fajr
+    - Sunrise
+    - Dhuhr
+    - Asr
+    - Maghrib
+    - Isha
+  </Step>
+</Steps>
+
+### Time Format
+
+Choose between 12-hour and 24-hour time formats:
+
+<Tabs>
+  <Tab title="12-Hour Format">
+    Displays times like: `5:30 AM`, `1:15 PM`, `8:45 PM`
+  </Tab>
+  <Tab title="24-Hour Format">
+    Displays times like: `05:30`, `13:15`, `20:45`
+  </Tab>
+</Tabs>
+
+You can change the time format in **Settings > Prayer Times > Time Format**.
+
+## Calculation Settings
+
+Praydo uses the `PrayTime` library to calculate accurate prayer times based on various calculation methods. See the [Calculation Methods](/configuration/calculation-methods) page for detailed information on customizing how prayer times are calculated.
+
+<Info>
+Prayer times are automatically recalculated whenever you change your location, calculation method, or any adjustment settings.
+</Info>
+
+## How Prayer Times are Calculated
+
+The app calculates prayer times based on three key factors:
+
+1. **Your Location**: Latitude and longitude coordinates
+2. **Current Date**: The Gregorian date for which to calculate times
+3. **Calculation Method**: Predefined methods (like MWL, ISNA, Egypt, Makkah) or custom settings
+
+The `PrayerManager` automatically:
+- Calculates today's prayer times
+- Determines the next upcoming prayer
+- Provides tomorrow's times when needed for overnight countdown
+- Updates the countdown every second
+
+## Islamic Date Display
+
+In addition to prayer times, the main dashboard displays the current Islamic (Hijri) date using the Tabby AI Hijri Converter. This helps you keep track of important Islamic dates and events alongside your daily prayers.

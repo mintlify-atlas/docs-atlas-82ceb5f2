@@ -1,0 +1,243 @@
+---
+title: Notifications and Alerts
+description: Desktop notifications and audio alerts for prayer times with customizable adhan sounds
+---
+
+Praydo keeps you informed of prayer times with desktop notifications and optional adhan (call to prayer) audio alerts. The notification system runs in the background and alerts you both before and at the exact time of each prayer.
+
+## Notification Types
+
+Praydo sends two types of notifications for each enabled prayer:
+
+### 1. Pre-Prayer Notification
+
+Sent a configurable number of minutes before each prayer time:
+
+**Example:**
+```
+Title: "15 Minutes Until Dhuhr Time"
+Body: "Dhuhr Time: 1:15 PM."
+```
+
+This gives you advance warning to prepare for prayer.
+
+### 2. Prayer Time Notification
+
+Sent at the exact moment the prayer time arrives:
+
+**Example:**
+```
+Title: "Dhuhr Time 1:15 PM"
+Body: "Dhuhr time in New York, NY, United States."
+```
+
+<Info>
+Notifications include your location name to confirm the prayer time is calculated for your area.
+</Info>
+
+## Configuring Notification Timing
+
+You can choose how many minutes before prayer time you want to be notified:
+
+<Steps>
+  <Step title="Open Settings">
+    Navigate to Settings from the main dashboard
+  </Step>
+  
+  <Step title="Go to Notifications Tab">
+    Select the "Notifications" tab (bell icon)
+  </Step>
+  
+  <Step title="Select Time Before Prayer">
+    Choose from the following options:
+    - 5 Minutes
+    - 10 Minutes
+    - 15 Minutes (default)
+    - 20 Minutes
+    - 25 Minutes
+    - 30 Minutes
+  </Step>
+</Steps>
+
+The selected time applies to **all prayers** - you'll receive the advance notification for each enabled prayer at your chosen interval.
+
+## Audio Alerts
+
+Praydo includes beautiful adhan recordings that play at prayer time. You can customize which prayers play the full adhan versus a simple notification sound.
+
+### Sound Types
+
+<Tabs>
+  <Tab title="Fajr Adhan">
+    **File:** `adhan-fajr.mp3`
+    
+    A special adhan recording specifically for Fajr prayer, which includes the additional phrase "As-salatu khayrun min an-nawm" (Prayer is better than sleep).
+    
+    Plays when:
+    - Fajr prayer time arrives
+    - Fajr is enabled for alerts in settings
+  </Tab>
+  
+  <Tab title="Makkah Adhan">
+    **File:** `adhan-makkah.mp3`
+    
+    The standard adhan for all other prayers (Dhuhr, Asr, Maghrib, Isha).
+    
+    Plays when:
+    - Prayer time arrives for enabled prayers
+    - That specific prayer is enabled for alerts
+  </Tab>
+  
+  <Tab title="Solemn Tone">
+    **File:** `solemn.mp3`
+    
+    A gentle notification sound that plays:
+    - For pre-prayer notifications (X minutes before)
+    - At prayer time if adhan is disabled for that prayer
+    - As a subtle reminder without full adhan
+  </Tab>
+</Tabs>
+
+### Enabling Adhan for Specific Prayers
+
+Control which prayers play the full adhan:
+
+<Steps>
+  <Step title="Open Settings > Prayer Times">
+    Navigate to Settings and select the "Prayer Times" tab
+  </Step>
+  
+  <Step title="Find 'Play Adzan At' Section">
+    Scroll to the "Play Adzan At" section
+  </Step>
+  
+  <Step title="Toggle Prayers">
+    Check the prayers where you want full adhan to play:
+    - Fajr (uses Fajr adhan)
+    - Dhuhr (uses Makkah adhan)
+    - Asr (uses Makkah adhan)
+    - Maghrib (uses Makkah adhan)
+    - Isha (uses Makkah adhan)
+  </Step>
+</Steps>
+
+<Note>
+Sunrise is not included in the adhan list since it's not a prayer time, just a reference point.
+</Note>
+
+### Audio Behavior
+
+**At prayer time:**
+- If adhan is **enabled** for that prayer → Plays full adhan (Fajr or Makkah)
+- If adhan is **disabled** for that prayer → Plays solemn tone
+
+**Before prayer time:**
+- Always plays solemn tone (regardless of adhan settings)
+
+## Notification Permissions
+
+Praydo requires notification permissions to send desktop alerts.
+
+### First-Time Setup
+
+The first time a notification is triggered, you'll be asked to grant permission:
+
+1. A system dialog appears asking for notification permission
+2. Click "Allow" to enable notifications
+3. Notifications will work immediately after granting permission
+
+<Warning>
+If you deny notification permission, you won't receive prayer time alerts. You can change this later in your system settings.
+</Warning>
+
+### Re-Enabling Notifications
+
+If you previously denied permission:
+
+<Tabs>
+  <Tab title="Windows">
+    1. Open Windows Settings
+    2. Go to System > Notifications
+    3. Find Praydo in the app list
+    4. Toggle notifications on
+  </Tab>
+  
+  <Tab title="macOS">
+    1. Open System Preferences
+    2. Go to Notifications & Focus
+    3. Find Praydo in the app list
+    4. Enable "Allow Notifications"
+  </Tab>
+  
+  <Tab title="Linux">
+    Depends on your desktop environment:
+    
+    **GNOME:**
+    1. Open Settings
+    2. Go to Notifications
+    3. Find Praydo and enable notifications
+    
+    **KDE Plasma:**
+    1. Open System Settings
+    2. Go to Notifications
+    3. Configure application settings for Praydo
+  </Tab>
+</Tabs>
+
+## How Notifications Work
+
+The notification system uses precise timing to ensure you never miss a prayer:
+
+### Notification Loop
+
+1. **Background Timer**: Runs every second checking the current time
+2. **Prayer Time Detection**: Compares current time against all enabled prayer times
+3. **Pre-Prayer Check**: Detects when current time crosses the "X minutes before" threshold
+4. **Exact Time Check**: Detects when current time crosses the exact prayer time
+5. **Send Notification**: Triggers desktop notification with appropriate sound
+
+### Cross-Over Detection
+
+The app uses a "cross-over" algorithm to ensure notifications fire exactly once:
+
+```typescript
+wasTimeCrossed(prev: Date, current: Date, target: Date): boolean {
+  return targetTime > prevTime && targetTime <= currentTime;
+}
+```
+
+This means:
+- Each notification fires **exactly once**
+- No duplicate notifications
+- Works even if your computer was sleeping
+- Accurate to the second
+
+<Info>
+If your computer is sleeping or the app is closed during a prayer time, you won't receive that notification. The app must be running to send alerts.
+</Info>
+
+## Customization Examples
+
+### Quiet Mode (No Adhan)
+
+For a subtle experience with only notification sounds:
+
+1. Go to Settings > Prayer Times
+2. Uncheck all prayers under "Play Adzan At"
+3. You'll still get notifications, but with gentle solemn tones instead of full adhan
+
+### Work-Friendly Setup
+
+Get notified well in advance without loud audio:
+
+1. Settings > Notifications: Set to "30 Minutes"
+2. Settings > Prayer Times > Play Adzan At: Uncheck all prayers
+3. You'll get a 30-minute warning with a gentle sound
+
+### Full Traditional Experience
+
+Hear the complete adhan for all prayers:
+
+1. Settings > Prayer Times > Play Adzan At: Check all prayers
+2. Settings > Notifications: Set to "5 Minutes" or "10 Minutes"
+3. You'll hear a reminder sound before prayer and full adhan at prayer time

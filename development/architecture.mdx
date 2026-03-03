@@ -1,0 +1,193 @@
+---
+title: Application Architecture
+description: Overview of Praydo's application architecture built with Tauri and SvelteKit
+---
+
+Praydo is a cross-platform desktop application built with modern web technologies and Rust. The architecture combines a SvelteKit frontend with a Tauri backend to deliver a native desktop experience.
+
+## Tech Stack
+
+Praydo is built with the following core technologies:
+
+- **[Tauri](https://tauri.app/)** - Cross-platform desktop framework
+- **[SvelteKit](https://kit.svelte.dev/)** - Web application framework
+- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
+- **[Rust](https://www.rust-lang.org/)** - Systems programming language for the backend
+- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[Skeleton UI](https://www.skeleton.dev/)** - Component library for Svelte
+
+## Application Structure
+
+The project follows a standard Tauri application structure:
+
+```
+praydo/
+├── src/                    # Frontend source code (SvelteKit)
+│   ├── lib/
+│   │   ├── logic/         # Business logic
+│   │   ├── store/         # State management
+│   │   ├── utils/         # Utility functions
+│   │   └── praytime/      # Prayer time calculations
+│   └── routes/            # SvelteKit routes
+├── src-tauri/             # Backend source code (Rust)
+│   ├── src/
+│   │   └── lib.rs        # Main Tauri application
+│   ├── Cargo.toml        # Rust dependencies
+│   └── tauri.conf.json   # Tauri configuration
+├── static/                # Static assets
+└── package.json           # Node.js dependencies
+```
+
+## Frontend Architecture
+
+The frontend is built with **SvelteKit** using the **adapter-static** adapter for static site generation. Since Tauri doesn't have a Node.js server, the entire application is pre-rendered at build time.
+
+### Key Frontend Components
+
+#### PrayerManager (`src/lib/logic/PrayerManager.svelte.ts`)
+
+The core business logic class that manages:
+
+- **Prayer time calculations** using the PrayTimes.org library
+- **Real-time countdown** to the next prayer
+- **Desktop notifications** for prayer times
+- **Location-based calculations** for accurate prayer times
+- **Islamic calendar conversions** (Gregorian to Hijri)
+- **Qibla direction calculations**
+
+```typescript
+export class PrayerManager {
+  currentTime = $state(new Date());
+  
+  // Derived state
+  todaysPrayerTimes = $derived.by(() => {...});
+  nextPrayer = $derived.by(() => {...});
+  countdownString = $derived.by(() => {...});
+  qiblaDirection = $derived.by(() => {...});
+}
+```
+
+The `PrayerManager` uses Svelte 5's runes (`$state`, `$derived`) for reactive state management.
+
+#### State Management
+
+Praydo uses **@tauri-store/svelte** for persistent state management with the following stores:
+
+- `selectedLocation` - User's selected location for prayer times
+- `calculationSettings` - Prayer calculation method and adjustments
+- `selectedTimes` - Enabled/disabled prayers and time format
+- `timeRemaining` - Pre-prayer notification settings
+- `selectedAlert` - Alert sound preferences per prayer
+
+### Build Configuration
+
+The frontend uses Vite as the build tool with special configuration for Tauri:
+
+- **Fixed port**: 1420 (required by Tauri)
+- **HMR**: Hot Module Replacement on port 1421
+- **Static adapter**: Pre-renders all pages at build time
+
+## Backend Architecture
+
+The backend is written in **Rust** and uses Tauri's plugin system to provide native functionality.
+
+### Tauri Plugins
+
+Praydo uses the following official Tauri plugins:
+
+| Plugin | Purpose |
+|--------|----------|
+| `tauri-plugin-autostart` | Launch app on system startup (desktop only) |
+| `tauri-plugin-fs` | File system access |
+| `tauri-plugin-http` | HTTP requests for location data |
+| `tauri-plugin-notification` | Native desktop notifications |
+| `tauri-plugin-opener` | Open URLs in default browser |
+| `tauri-plugin-svelte` | Svelte integration |
+
+### System Tray Integration
+
+The application implements a system tray icon with a custom menu:
+
+```rust
+let menu = Menu::with_items(app, &[&open_i, &hide_i, &separator_i, &quit_i])?;
+
+let tray_builder = TrayIconBuilder::new()
+    .menu(&menu)
+    .show_menu_on_left_click(true)
+    .on_menu_event(|app, event| {
+        // Handle menu events
+    });
+```
+
+### Custom Commands
+
+The backend exposes Rust functions to the frontend via Tauri commands:
+
+#### `send_native_notification`
+
+Sends native desktop notifications:
+
+```rust
+#[tauri::command]
+fn send_native_notification(
+    app: tauri::AppHandle,
+    title: String,
+    body: String
+) -> Result<(), String> {
+    app.notification()
+        .builder()
+        .title(title)
+        .body(body)
+        .show()
+        .map_err(|e| e.to_string())
+}
+```
+
+Invoked from the frontend:
+
+```typescript
+import { invoke } from '@tauri-apps/api/core';
+
+await invoke('send_native_notification', {
+  title: 'Fajr Time 05:30',
+  body: 'Fajr time in New York.'
+});
+```
+
+### Window Behavior
+
+The application hides to the system tray instead of closing when the user clicks the close button:
+
+```rust
+.on_window_event(|window, event| {
+    if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+        api.prevent_close();
+        let _ = window.hide();
+        // Send notification to inform user
+    }
+})
+```
+
+## Data Flow
+
+1. **User selects location** → Stored in `selectedLocation` store
+2. **PrayerManager calculates prayer times** → Uses PrayTimes.org library with location coordinates
+3. **Times are displayed** → Reactive updates using Svelte's reactivity
+4. **Countdown timer runs** → 1-second interval checks for notifications
+5. **Notification triggered** → Calls Rust backend via `invoke()`
+6. **Native notification shown** → OS-level notification appears
+
+## External APIs
+
+Praydo integrates with the following external services:
+
+- **[OpenStreetMap Nominatim](https://nominatim.openstreetmap.org/)** - Location search and geocoding
+- **[PrayTimes.org](http://praytimes.org/)** - Prayer time calculation algorithms (library)
+
+## Performance Considerations
+
+- **Static rendering**: All pages pre-rendered at build time for instant loading
+- **Minimal dependencies**: Only essential libraries included
+- **Native performance**: Rust backend provides fast, efficient operations
+- **Single timer**: One 1-second interval handles all time-based updates
+- **Derived state**: Prayer times calculated reactively only when dependencies change
