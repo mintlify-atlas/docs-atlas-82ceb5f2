@@ -1,0 +1,94 @@
+{
+  "projectType": "frontend",
+  "projectName": "Praydo",
+  "projectDescription": "A modern, cross-platform desktop application for Muslim prayer times with location-based calculations and notifications",
+  "theme": "almond",
+  "primaryColor": "#059669",
+  "lightColor": null,
+  "darkColor": null,
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "features/prayer-times",
+              "features/location-setup",
+              "features/notifications",
+              "features/qibla-compass",
+              "features/calendar"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/calculation-methods",
+              "configuration/prayer-settings",
+              "configuration/alert-settings",
+              "configuration/general-settings"
+            ]
+          },
+          {
+            "group": "Development",
+            "pages": [
+              "development/architecture",
+              "development/building",
+              "development/contributing"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Core Classes",
+            "pages": [
+              "api/praytime",
+              "api/prayer-manager"
+            ]
+          },
+          {
+            "group": "Utilities",
+            "pages": [
+              "api/qibla",
+              "api/islamic-utils",
+              "api/location"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Daily prayer times with accurate calculations",
+    "Location-based prayer time adjustments using OpenStreetMap",
+    "Desktop notifications and audio alerts (Adhan)",
+    "Qibla compass for prayer direction",
+    "Monthly prayer calendar view",
+    "Multiple calculation methods (MWL, ISNA, Egypt, Makkah, etc.)",
+    "Customizable prayer time settings",
+    "System tray integration",
+    "Dark and light mode support",
+    "Auto-start on system startup"
+  ],
+  "publicApiSurface": [
+    "PrayTime class - Prayer time calculation engine",
+    "PrayerManager class - Application state management",
+    "calculateQiblaBearing() - Qibla direction calculator",
+    "geocode() - Location search API",
+    "send_native_notification() - Tauri command for notifications",
+    "formatHijriDate() - Islamic date formatter",
+    "parseTimeString() - Time parsing utility"
+  ]
+}
