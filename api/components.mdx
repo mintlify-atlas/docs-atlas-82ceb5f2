@@ -1,0 +1,163 @@
+---
+title: Components
+description: Reusable Svelte components in Praydo
+---
+
+Praydo includes several reusable Svelte components for building the user interface.
+
+## QiblaCompass
+
+A visual compass component that displays the Qibla direction (direction to the Kaaba in Mecca).
+
+### Props
+
+<ParamField path="bearing" type="number" default="0">
+  The bearing angle in degrees (0-360) pointing to the Qibla direction
+</ParamField>
+
+<ParamField path="size" type="number" default="48">
+  The size of the compass in pixels (both width and height)
+</ParamField>
+
+### Usage
+
+```svelte
+<script>
+  import QiblaCompass from '$lib/components/QiblaCompass.svelte';
+  import { calculateQiblaBearing } from '$lib/utils/qibla';
+  
+  const latitude = -6.2088;  // Jakarta
+  const longitude = 106.8456;
+  const bearing = calculateQiblaBearing(latitude, longitude);
+</script>
+
+<QiblaCompass {bearing} size={72} />
+```
+
+### Features
+
+- Static compass rose with cardinal direction (North) marked
+- Rotating Kaaba icon pointing to the Qibla direction
+- Smooth rotation animations
+- Customizable size
+- Responsive to bearing changes
+
+<Info>
+  The compass uses the `Compass` icon from Lucide Svelte and applies CSS transforms to rotate the Kaaba indicator to the calculated bearing angle.
+</Info>
+
+## Lightswitch
+
+A theme toggle switch component for switching between light and dark modes.
+
+### Props
+
+This component does not accept props. It internally manages the theme state using the `modeLightSwitch` store.
+
+### Usage
+
+```svelte
+<script>
+  import Lightswitch from '$lib/components/Lightswitch.svelte';
+</script>
+
+<label class="flex items-center space-x-2">
+  <Lightswitch />
+  <p>Dark Mode</p>
+</label>
+```
+
+### Features
+
+- Automatically syncs with the `modeLightSwitch` store
+- Persists theme preference to local storage
+- Updates the `data-mode` attribute on the document root
+- Uses Skeleton UI's `Switch` component
+- Smooth toggle animations
+
+### State Management
+
+The component reads and writes to `modeLightSwitch.state.mode`, which can be:
+- `"light"` - Light theme
+- `"dark"` - Dark theme
+
+When toggled, it:
+1. Updates the store value
+2. Sets `document.documentElement.setAttribute('data-mode', mode)`
+3. Automatically saves to persistent storage
+
+## OnboardingWizard
+
+An interactive multi-step wizard that guides new users through initial setup.
+
+### Props
+
+<ParamField path="manager" type="OnboardingManager" required>
+  An instance of the `OnboardingManager` class that controls the wizard state
+</ParamField>
+
+### Usage
+
+```svelte
+<script>
+  import { OnboardingManager } from '$lib/logic/OnboardingManager.svelte';
+  import OnboardingWizard from '$lib/components/OnboardingWizard.svelte';
+  
+  const manager = new OnboardingManager();
+</script>
+
+{#if needsOnboarding}
+  <OnboardingWizard {manager} />
+{/if}
+```
+
+### Features
+
+The wizard guides users through three steps:
+
+#### Step 1: Location Setup
+- OpenStreetMap search field with debouncing
+- Automatic selection of the first search result
+- Displays selected location with coordinates
+- Shows error messages for failed searches
+
+#### Step 2: Calculation Method
+- Dropdown selection of 12 calculation methods
+- Helpful tip about being able to change later
+- Syncs with `calculationSettings` store
+
+#### Step 3: Notifications
+- "Enable all prayer alerts" checkbox for bulk enable
+- Individual checkboxes for each prayer (Fajr, Dhuhr, Asr, Maghrib, Isha)
+- Automatic notification permission request
+- Syncs with `selectedAlert` store
+
+### Visual Design
+
+- Full-screen overlay with backdrop blur
+- Card-based layout (max-width: 36rem)
+- Progress indicator dots showing current step
+- Back/Next/Finish buttons with appropriate states
+- Fade transitions between steps
+- Disabled states when required data is missing
+
+<Note>
+  The wizard automatically closes when the user clicks **Finish** and location data is set. The `PrayerManager.isSetupRequired` derived state will become false, hiding the wizard.
+</Note>
+
+## Component Architecture
+
+All components follow Svelte 5's runes-based reactivity model:
+
+- Use `$state` for local reactive variables
+- Use `$props` for component props
+- Use `$effect` for side effects
+- Integrate with Tauri stores using `@tauri-store/svelte`
+
+### Styling
+
+Components use:
+- Tailwind CSS for utility classes
+- Skeleton UI preset styles (e.g., `preset-filled`, `preset-tonal`)
+- Custom Praydo theme colors from `praydo.css`
+- Dark mode support via `dark:` modifiers

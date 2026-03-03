@@ -1,0 +1,294 @@
+---
+title: OnboardingManager
+description: Manages the state of the first-time user onboarding wizard
+---
+
+## Overview
+
+The `OnboardingManager` class manages the state and navigation flow of Praydo's onboarding wizard. It controls which step is currently displayed and provides methods for moving between steps.
+
+## Class Definition
+
+```typescript
+class OnboardingManager {
+  currentStep: number;
+  totalSteps: number;
+  
+  nextStep(): void;
+  prevStep(): void;
+  
+  get isFirstStep(): boolean;
+  get isLastStep(): boolean;
+}
+```
+
+## Constructor
+
+Creates a new instance of the OnboardingManager.
+
+```typescript
+const manager = new OnboardingManager();
+```
+
+The manager initializes with:
+- `currentStep`: `0` (first step)
+- `totalSteps`: `3` (location, method, notifications)
+
+## Properties
+
+### currentStep
+
+<ParamField path="currentStep" type="number">
+  The current step index (0-based). Reactive state that triggers UI updates when changed.
+  
+  - `0`: Location setup
+  - `1`: Calculation method selection
+  - `2`: Notification preferences
+</ParamField>
+
+### totalSteps
+
+<ParamField path="totalSteps" type="number">
+  The total number of steps in the onboarding process. Fixed at `3`.
+</ParamField>
+
+## Methods
+
+### nextStep()
+
+Advances to the next step in the onboarding process.
+
+```typescript
+nextStep(): void
+```
+
+**Behavior:**
+- Increments `currentStep` by 1
+- Does nothing if already on the last step
+- Updates reactive state, triggering UI re-render
+
+**Example:**
+
+```typescript
+const manager = new OnboardingManager();
+
+console.log(manager.currentStep); // 0
+manager.nextStep();
+console.log(manager.currentStep); // 1
+manager.nextStep();
+console.log(manager.currentStep); // 2
+manager.nextStep();
+console.log(manager.currentStep); // 2 (no change, already at last step)
+```
+
+### prevStep()
+
+Returns to the previous step in the onboarding process.
+
+```typescript
+prevStep(): void
+```
+
+**Behavior:**
+- Decrements `currentStep` by 1
+- Does nothing if already on the first step
+- Updates reactive state, triggering UI re-render
+
+**Example:**
+
+```typescript
+const manager = new OnboardingManager();
+
+manager.currentStep = 2;
+console.log(manager.currentStep); // 2
+manager.prevStep();
+console.log(manager.currentStep); // 1
+manager.prevStep();
+console.log(manager.currentStep); // 0
+manager.prevStep();
+console.log(manager.currentStep); // 0 (no change, already at first step)
+```
+
+## Computed Properties
+
+### isFirstStep
+
+Returns `true` if the current step is the first step (step 0).
+
+```typescript
+get isFirstStep(): boolean
+```
+
+**Example:**
+
+```typescript
+const manager = new OnboardingManager();
+
+console.log(manager.isFirstStep); // true
+manager.nextStep();
+console.log(manager.isFirstStep); // false
+```
+
+**Use case:** Conditionally hide the "Back" button on the first step:
+
+```svelte
+{#if !manager.isFirstStep}
+  <button onclick={() => manager.prevStep()}>
+    Back
+  </button>
+{/if}
+```
+
+### isLastStep
+
+Returns `true` if the current step is the last step (step 2).
+
+```typescript
+get isLastStep(): boolean
+```
+
+**Example:**
+
+```typescript
+const manager = new OnboardingManager();
+
+console.log(manager.isLastStep); // false
+manager.currentStep = 2;
+console.log(manager.isLastStep); // true
+```
+
+**Use case:** Show "Finish" button instead of "Next" on the last step:
+
+```svelte
+{#if !manager.isLastStep}
+  <button onclick={() => manager.nextStep()}>
+    Next
+  </button>
+{:else}
+  <button onclick={completeOnboarding}>
+    Finish
+  </button>
+{/if}
+```
+
+## Usage with OnboardingWizard
+
+The `OnboardingManager` is designed to be used with the `OnboardingWizard` component:
+
+```svelte
+<script lang="ts">
+  import { OnboardingManager } from '$lib/logic/OnboardingManager.svelte';
+  import OnboardingWizard from '$lib/components/OnboardingWizard.svelte';
+  import { PrayerManager } from '$lib/logic/PrayerManager.svelte';
+  
+  const prayerManager = new PrayerManager();
+  const onboardingManager = new OnboardingManager();
+</script>
+
+{#if prayerManager.isSetupRequired}
+  <OnboardingWizard manager={onboardingManager} />
+{:else}
+  <!-- Main app content -->
+{/if}
+```
+
+## Reactive State
+
+The `OnboardingManager` uses Svelte 5's runes-based reactivity:
+
+```typescript
+export class OnboardingManager {
+  currentStep = $state(0);  // Reactive state
+  totalSteps = 3;           // Static value
+  
+  // Methods update reactive state
+  nextStep() {
+    if (this.currentStep < this.totalSteps - 1) {
+      this.currentStep += 1;  // Triggers reactivity
+    }
+  }
+}
+```
+
+Any Svelte component that reads `manager.currentStep` will automatically re-render when it changes.
+
+## Step Flow
+
+The onboarding process follows this flow:
+
+```
+Step 0: Location Setup
+   ↓ (nextStep)
+Step 1: Calculation Method
+   ↓ (nextStep)
+Step 2: Notification Preferences
+   ↓ (Finish button)
+Complete onboarding
+```
+
+Each step can navigate backward (except step 0) or forward (except step 2).
+
+## Example: Complete Integration
+
+```svelte
+<script lang="ts">
+  import { OnboardingManager } from '$lib/logic/OnboardingManager.svelte';
+  import { selectedLocation } from '$lib/store/selectedLocation';
+  
+  const manager = new OnboardingManager();
+  
+  function handleFinish() {
+    if (!selectedLocation.state.label) {
+      alert('Please set your location before finishing');
+      return;
+    }
+    
+    // Onboarding complete - wizard will hide automatically
+    // because PrayerManager.isSetupRequired becomes false
+  }
+</script>
+
+<div class="wizard">
+  <!-- Progress indicator -->
+  <div class="progress">
+    {#each Array(manager.totalSteps) as _, i}
+      <div class="dot" class:active={i === manager.currentStep}></div>
+    {/each}
+  </div>
+  
+  <!-- Step content -->
+  {#if manager.currentStep === 0}
+    <LocationStep />
+  {:else if manager.currentStep === 1}
+    <MethodStep />
+  {:else if manager.currentStep === 2}
+    <NotificationStep />
+  {/if}
+  
+  <!-- Navigation buttons -->
+  <div class="buttons">
+    {#if !manager.isFirstStep}
+      <button onclick={() => manager.prevStep()}>
+        Back
+      </button>
+    {/if}
+    
+    {#if !manager.isLastStep}
+      <button 
+        onclick={() => manager.nextStep()}
+        disabled={manager.currentStep === 0 && !selectedLocation.state.label}
+      >
+        Next
+      </button>
+    {:else}
+      <button onclick={handleFinish}>
+        Finish
+      </button>
+    {/if}
+  </div>
+</div>
+```
+
+<Note>
+  The manager does not enforce validation - that's the responsibility of the wizard component. The wizard can disable navigation buttons based on whether required data (like location) is available.
+</Note>

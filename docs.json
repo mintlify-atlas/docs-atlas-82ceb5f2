@@ -67,7 +67,20 @@
             "group": "Core Classes",
             "pages": [
               "api/praytime",
-              "api/prayer-manager"
+              "api/prayer-manager",
+              "api/onboarding-manager"
+            ]
+          },
+          {
+            "group": "Components",
+            "pages": [
+              "api/components"
+            ]
+          },
+          {
+            "group": "State Management",
+            "pages": [
+              "api/stores"
             ]
           },
           {
@@ -75,7 +88,8 @@
             "pages": [
               "api/qibla",
               "api/islamic-utils",
-              "api/location"
+              "api/location",
+              "api/audio"
             ]
           }
         ]

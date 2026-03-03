@@ -1,0 +1,308 @@
+---
+title: Stores
+description: Persistent application state stores in Praydo
+---
+
+Praydo uses `@tauri-store/svelte` to manage persistent application state. All stores automatically save to disk and restore on app launch.
+
+## Store Architecture
+
+All stores are instances of `RuneStore` with the following configuration:
+
+```typescript
+new RuneStore(storeName, defaultState, {
+  saveOnChange: true,          // Auto-save on state changes
+  saveStrategy: 'debounce',    // Debounce saves
+  saveInterval: 1000,          // Save after 1 second of inactivity
+  autoStart: true              // Start automatically
+})
+```
+
+<Info>
+  Stores persist data to the filesystem using Tauri's file system plugin. Data is stored in platform-specific application data directories.
+</Info>
+
+## selectedLocation
+
+Stores the user's selected geographic location for prayer time calculations.
+
+### State Interface
+
+```typescript
+interface LocationData {
+  id: string;          // OpenStreetMap place ID
+  label: string;       // Full formatted address
+  latitude: number;    // Latitude coordinate
+  longitude: number;   // Longitude coordinate
+}
+```
+
+### Usage
+
+```typescript
+import { selectedLocation } from '$lib/store/selectedLocation';
+
+// Read location
+const location = selectedLocation.state;
+console.log(location.latitude, location.longitude);
+
+// Update location
+selectedLocation.state.id = '123456';
+selectedLocation.state.label = 'Jakarta, Indonesia';
+selectedLocation.state.latitude = -6.2088;
+selectedLocation.state.longitude = 106.8456;
+```
+
+### Default Values
+
+- `id`: `""` (empty string)
+- `label`: `""` (empty string)
+- `latitude`: `-6.2088` (Jakarta, Indonesia)
+- `longitude`: `106.8456` (Jakarta, Indonesia)
+
+<Warning>
+  The location store must have a valid `id` and `label` for the app to function. The `PrayerManager` checks `isSetupRequired` based on these values.
+</Warning>
+
+## calculationSettings
+
+Stores prayer time calculation method and adjustment parameters.
+
+### State Interface
+
+```typescript
+interface CalculationSettings {
+  method: 'MWL' | 'ISNA' | 'Egypt' | 'Makkah' | 'Karachi' | 
+          'Tehran' | 'Jafari' | 'France' | 'Russia' | 
+          'Singapore' | 'NU' | 'MU' | 'custom';
+  fajrAngle: number;           // Fajr twilight angle (degrees)
+  dhuhrMinutes: number;        // Minutes after solar noon
+  asrMethod: 'Standard' | 'Hanafi';
+  maghrib: number;             // Maghrib angle or minutes
+  maghribMode: 'degrees' | 'minutes';
+  isha: number;                // Isha angle or minutes
+  ishaMode: 'degrees' | 'minutes';
+  midnight: 'Standard' | 'Jafari';
+  highLatitudes: 'NightMiddle' | 'OneSeventh' | 'AngleBased' | 'None';
+}
+```
+
+### Usage
+
+```typescript
+import { calculationSettings } from '$lib/store/calculationSettings';
+
+// Read settings
+const method = calculationSettings.state.method;
+
+// Update calculation method
+calculationSettings.state.method = 'ISNA';
+
+// Custom calculation
+calculationSettings.state.method = 'custom';
+calculationSettings.state.fajrAngle = 18;
+calculationSettings.state.isha = 17;
+calculationSettings.state.ishaMode = 'degrees';
+```
+
+### Default Values
+
+- `method`: `'NU'` (Nahdlatul Ulama - Indonesia)
+- `fajrAngle`: `20`
+- `dhuhrMinutes`: `0`
+- `asrMethod`: `'Standard'`
+- `maghrib`: `1`
+- `maghribMode`: `'degrees'`
+- `isha`: `18`
+- `ishaMode`: `'degrees'`
+- `midnight`: `'Standard'`
+- `highLatitudes`: `'NightMiddle'`
+
+## selectedTimes
+
+Controls which prayer times are displayed and the time format.
+
+### State Interface
+
+```typescript
+interface SelectedTimes {
+  daily: {
+    fajr: boolean;
+    sunrise: boolean;
+    dhuhr: boolean;
+    asr: boolean;
+    maghrib: boolean;
+    isha: boolean;
+  };
+  format: '24h' | '12h' | '12H' | 'x' | 'X';
+}
+```
+
+### Usage
+
+```typescript
+import { selectedTimes } from '$lib/store/selectedTimes';
+
+// Toggle prayer visibility
+selectedTimes.state.daily.fajr = true;
+selectedTimes.state.daily.sunrise = false;
+
+// Change time format
+selectedTimes.state.format = '12h';  // 12-hour with AM/PM
+selectedTimes.state.format = '24h';  // 24-hour format
+```
+
+### Time Format Options
+
+| Format | Description | Example |
+|--------|-------------|---------|
+| `'12h'` | 12-hour with AM/PM | `5:30 AM` |
+| `'24h'` | 24-hour format | `05:30` |
+| `'12H'` | 12-hour without AM/PM | `5:30` |
+| `'x'` | Unix timestamp (milliseconds) | `1234567890` |
+| `'X'` | Unix timestamp (seconds) | `1234567890` |
+
+### Default Values
+
+All prayers are enabled by default:
+- `daily.fajr`: `true`
+- `daily.sunrise`: `true`
+- `daily.dhuhr`: `true`
+- `daily.asr`: `true`
+- `daily.maghrib`: `true`
+- `daily.isha`: `true`
+- `format`: `'12h'`
+
+## selectedAlert
+
+Controls which prayers play the adhan (call to prayer) sound.
+
+### State Interface
+
+```typescript
+interface SelectedAlert {
+  alert: {
+    fajr: boolean;
+    dhuhr: boolean;
+    asr: boolean;
+    maghrib: boolean;
+    isha: boolean;
+  };
+}
+```
+
+### Usage
+
+```typescript
+import { selectedAlert } from '$lib/store/selectedAlert';
+
+// Enable adhan for specific prayers
+selectedAlert.state.alert.fajr = true;
+selectedAlert.state.alert.maghrib = true;
+
+// Disable adhan
+selectedAlert.state.alert.dhuhr = false;
+```
+
+### Audio Behavior
+
+When a prayer time arrives:
+- If alert is **enabled**: Plays `adhan-fajr.mp3` (for Fajr) or `adhan-makkah.mp3` (for other prayers)
+- If alert is **disabled**: Plays `solemn.mp3` (a subtle notification tone)
+
+### Default Values
+
+All alerts are disabled by default:
+- `alert.fajr`: `false`
+- `alert.dhuhr`: `false`
+- `alert.asr`: `false`
+- `alert.maghrib`: `false`
+- `alert.isha`: `false`
+
+<Note>
+  Sunrise is not included in the alert settings because it's not a prayer time - it's a timing reference.
+</Note>
+
+## timeRemaining
+
+Stores the notification timing preference (how many minutes before prayer time to send a notification).
+
+### State Interface
+
+```typescript
+interface TimeRemaining {
+  minutes: number;  // 5, 10, 15, 20, 25, or 30
+}
+```
+
+### Usage
+
+```typescript
+import { timeRemaining } from '$lib/store/timeRemaining';
+
+// Set notification timing
+timeRemaining.state.minutes = 15;  // Notify 15 minutes before prayer
+```
+
+### Available Options
+
+The UI presents these options:
+- 5 minutes
+- 10 minutes
+- 15 minutes
+- 20 minutes
+- 25 minutes
+- 30 minutes
+
+### Default Value
+
+- `minutes`: `5`
+
+### Behavior
+
+The `PrayerManager` checks if the current time crosses the "N minutes before" threshold and sends a pre-prayer notification.
+
+## modeLightSwitch
+
+Controls the application theme (light or dark mode).
+
+### State Interface
+
+```typescript
+interface ModeLightSwitch {
+  mode: 'light' | 'dark';
+}
+```
+
+### Usage
+
+```typescript
+import { modeLightSwitch } from '$lib/store/modeLightSwitch';
+
+// Read current mode
+const isDark = modeLightSwitch.state.mode === 'dark';
+
+// Set theme
+modeLightSwitch.state.mode = 'dark';
+document.documentElement.setAttribute('data-mode', 'dark');
+```
+
+### Default Value
+
+- `mode`: `'light'`
+
+### Integration
+
+The `Lightswitch` component automatically manages this store and updates the DOM's `data-mode` attribute for CSS theme switching.
+
+## Store Persistence
+
+All stores persist to the following locations:
+
+| Platform | Path |
+|----------|------|
+| **Windows** | `%APPDATA%\id.my.apr.praydo\` |
+| **macOS** | `~/Library/Application Support/id.my.apr.praydo/` |
+| **Linux** | `~/.config/id.my.apr.praydo/` |
+
+Each store is saved as a separate JSON file named after the store identifier.

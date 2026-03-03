@@ -1,0 +1,145 @@
+---
+title: Audio Utilities
+description: Sound playback utilities for prayer notifications
+---
+
+## Overview
+
+The audio utilities provide functions for playing audio files from Praydo's bundled assets. These are used for adhan (call to prayer) and notification sounds.
+
+## playSound
+
+Plays an audio file from the application's asset bundle.
+
+```typescript
+async function playSound(fileName: string): Promise<void>
+```
+
+### Parameters
+
+<ParamField path="fileName" type="string" required>
+  The name of the audio file to play (must be located in the `assets/` directory)
+</ParamField>
+
+### Returns
+
+<ResponseField name="promise" type="Promise<void>">
+  A promise that resolves when the audio starts playing (not when it finishes)
+</ResponseField>
+
+### Available Audio Files
+
+Praydo includes three audio files in the `assets/` directory:
+
+| File | Description | Usage |
+|------|-------------|-------|
+| `adhan-fajr.mp3` | Fajr (dawn) adhan | Played at Fajr time when adhan is enabled |
+| `adhan-makkah.mp3` | Standard adhan (Makkah style) | Played at Dhuhr, Asr, Maghrib, and Isha when adhan is enabled |
+| `solemn.mp3` | Subtle notification tone | Played when adhan is disabled or for pre-prayer notifications |
+
+### Example
+
+```typescript
+import { playSound } from '$lib/sound';
+
+// Play Fajr adhan
+await playSound('adhan-fajr.mp3');
+
+// Play standard adhan
+await playSound('adhan-makkah.mp3');
+
+// Play notification sound
+await playSound('solemn.mp3');
+```
+
+### Implementation Details
+
+The function:
+1. Reads the audio file from the Tauri resource directory using `@tauri-apps/plugin-fs`
+2. Creates a Blob from the file data with MIME type `audio/mpeg`
+3. Generates an object URL for the Blob
+4. Creates an HTML5 Audio element
+5. Calls `.play()` on the audio element
+
+```typescript
+const filePath = await readFile(`assets/${fileName}`, {
+  baseDir: BaseDirectory.Resource,
+});
+const mimeType = 'audio/mpeg';
+const blob = new Blob([new Uint8Array(filePath)], { type: mimeType });
+const assetUrl = URL.createObjectURL(blob);
+const audio = new Audio(assetUrl);
+audio.play();
+```
+
+<Info>
+  Audio files are bundled with the application in the `src-tauri/assets/` directory and packaged as resources in the final build.
+</Info>
+
+### Usage in Notifications
+
+The `PrayerManager` uses `playSound()` when sending notifications:
+
+**Pre-prayer notifications** (N minutes before):
+```typescript
+playSound('solemn.mp3');
+```
+
+**Exact prayer time notifications**:
+```typescript
+// For Fajr with adhan enabled
+if (isAlertEnabled && prayerKey === 'fajr') {
+  playSound('adhan-fajr.mp3');
+}
+// For other prayers with adhan enabled
+else if (isAlertEnabled) {
+  playSound('adhan-makkah.mp3');
+}
+// For all prayers with adhan disabled
+else {
+  playSound('solemn.mp3');
+}
+```
+
+### Platform Support
+
+Audio playback works across all platforms:
+- **Windows**: Uses native WebView2 audio
+- **macOS**: Uses WebKit audio
+- **Linux**: Uses WebKitGTK audio
+
+<Note>
+  The audio plays using the system's default audio output. Volume is controlled by the system volume settings.
+</Note>
+
+### Error Handling
+
+The function does not explicitly handle errors. If the audio file is missing or playback fails, the promise will reject. In production, you may want to wrap calls in try/catch:
+
+```typescript
+try {
+  await playSound('adhan-makkah.mp3');
+} catch (error) {
+  console.error('Failed to play sound:', error);
+  // Fallback behavior
+}
+```
+
+### Asset Management
+
+To add new audio files:
+
+1. Place MP3 files in `src-tauri/assets/`
+2. Ensure they're included in the bundle configuration in `tauri.conf.json`:
+   ```json
+   {
+     "bundle": {
+       "resources": ["assets"]
+     }
+   }
+   ```
+3. Call `playSound('your-file.mp3')`
+
+<Warning>
+  Audio files should be in MP3 format. Other formats may not be supported across all platforms.
+</Warning>

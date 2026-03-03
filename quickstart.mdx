@@ -13,49 +13,67 @@ This guide will walk you through setting up Praydo for the first time and help y
 
 ## First-Time Setup
 
-Follow these steps to get started with Praydo:
+When you launch Praydo for the first time, an interactive onboarding wizard guides you through the initial setup in three simple steps:
 
 <Steps>
   <Step title="Launch the Application">
     Open Praydo from your applications menu or desktop shortcut.
     
-    When you first launch Praydo, you'll see the main window with the title "Pray on Time. Praydo." The application window is optimized at 900x760 pixels for the best viewing experience.
+    You'll see a welcome screen titled "Welcome to Praydo" with the message "Let's get you set up in a few quick steps." The application window is optimized at 900x760 pixels for the best viewing experience.
   </Step>
   
-  <Step title="Set Your Location">
-    To get accurate prayer times, you need to set your location:
+  <Step title="Step 1: Set Your Location">
+    The first step asks you to set your location for accurate prayer times:
     
-    1. Click on the location search or settings option
-    2. Search for your city or address
-    3. Select your location from the search results
+    1. Enter your city or address in the search field (e.g., "Jakarta", "London", or a specific address)
+    2. Click the **Search** button or press Enter
+    3. Praydo automatically selects the first (most relevant) result
+    4. You'll see a confirmation card showing your selected location with full address and coordinates
     
     <Info>
-      Praydo uses OpenStreetMap to search for locations, providing accurate geocoding data for prayer time calculations.
+      Praydo uses OpenStreetMap's geocoding service to search for locations. The search implements intelligent debouncing (500ms delay) and respects rate limits (1 request per second).
     </Info>
     
-    Your location is saved locally on your device and will be remembered for future use.
+    Once you see your location confirmed, click **Next** to continue.
   </Step>
   
-  <Step title="View Prayer Times">
-    Once your location is set, Praydo will automatically calculate and display:
+  <Step title="Step 2: Choose Calculation Method">
+    Select the prayer time calculation method used in your region:
     
-    - **All five daily prayers**: Fajr, Dhuhr, Asr, Maghrib, and Isha
-    - **Prayer times** specific to your location
-    - **Hijri date** alongside the Gregorian date
+    - The wizard presents a dropdown with 12 methods (MWL, ISNA, Egypt, Makkah, Karachi, Tehran, Jafari, France, Russia, Singapore, NU, MU)
+    - Choose the method that matches your local Islamic authority's recommendations
+    - If unsure, you can keep the default (NU) and change it later in Settings
     
-    The prayer times are calculated using the PrayTimes.org algorithm, ensuring accuracy based on your geographical coordinates.
+    <Tip>
+      The wizard displays a helpful tip: "If you're not sure, you can keep the default or change it later in Settings."
+    </Tip>
+    
+    Click **Next** to proceed to the final step.
   </Step>
   
-  <Step title="Monitor the Countdown">
-    The main screen displays a countdown to the next prayer:
+  <Step title="Step 3: Enable Notifications">
+    Configure prayer time notifications:
     
-    - See exactly how many hours and minutes until the next prayer
-    - The countdown updates in real-time
-    - The next prayer is highlighted for easy identification
+    1. Check "Enable all prayer alerts" to quickly enable notifications for all prayers
+    2. Or individually select which prayers should trigger notifications:
+       - Fajr
+       - Dhuhr
+       - Asr
+       - Maghrib
+       - Isha
+    3. When you enable any notification, Praydo will request notification permissions from your system
     
-    This helps you plan your day and ensure you don't miss any prayers.
+    <Warning>
+      Make sure to grant notification permissions when prompted. Without this, you won't receive prayer time alerts.
+    </Warning>
+    
+    Click **Finish** to complete the setup and access the main dashboard.
   </Step>
 </Steps>
+
+<Note>
+  The onboarding wizard only appears on first launch when no location is set. You can change any of these settings later from the Settings page.
+</Note>
 
 ## Understanding the Interface
 
